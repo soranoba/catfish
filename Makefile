@@ -1,6 +1,10 @@
+CMDS = ls -d cmd/* | xargs -I@ basename @
 
 build:
-	go build
+	${CMDS} | xargs -I@ go build -o bin/@ ./cmd/@
+
+start:
+	go run -a ./cmd/catfish
 
 test:
 	go test ./... -count=1
