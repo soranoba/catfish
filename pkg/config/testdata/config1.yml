@@ -1,7 +1,13 @@
 default:
   request:
   response:
-    content-type: application/json
+    status: 404
+    header:
+      Content-Type: application/json
+    body: >
+      {
+        "message": "Not Found"
+      }
 routes:
   - method: GET
     path: /users/:id
@@ -9,6 +15,8 @@ routes:
       200:
         cond: rand(0.8)
         status: 200
+        header:
+          Content-Type: application/json
         body: >
           {
             "id": 1,
@@ -17,6 +25,8 @@ routes:
       500:
         cond: true
         status: 500
+        header:
+          Content-Type: application/json
         body: >
           {
             "message": "Internal Server Error"
@@ -27,6 +37,8 @@ routes:
       401:
         cond: true
         status: 401
+        header:
+          Content-Type: application/json
         body: >
           {
             "message": "Unauthorized"

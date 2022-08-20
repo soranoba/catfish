@@ -16,6 +16,15 @@ func TestLoadYamlFile(t *testing.T) {
 	conf, err := LoadYamlFile(filepath.Join(dir, "testdata/config1.yml"))
 	assert.NoError(err)
 	assert.Equal(Config{
+		Default: Default{
+			Response: Response{
+				Status: 404,
+				Header: map[string]string{
+					"Content-Type": "application/json",
+				},
+				Body: "{\n  \"message\": \"Not Found\"\n}\n",
+			},
+		},
 		Routes: []Route{
 			{
 				Method: "GET",
@@ -24,12 +33,18 @@ func TestLoadYamlFile(t *testing.T) {
 					"200": {
 						Condition: "rand(0.8)",
 						Status:    200,
-						Body:      "{\n  \"id\": 1,\n  \"name\": \"Alice\"\n}\n",
+						Header: map[string]string{
+							"Content-Type": "application/json",
+						},
+						Body: "{\n  \"id\": 1,\n  \"name\": \"Alice\"\n}\n",
 					},
 					"500": {
 						Condition: "true",
 						Status:    500,
-						Body:      "{\n  \"message\": \"Internal Server Error\"\n}\n",
+						Header: map[string]string{
+							"Content-Type": "application/json",
+						},
+						Body: "{\n  \"message\": \"Internal Server Error\"\n}\n",
 					},
 				},
 			},
@@ -40,7 +55,10 @@ func TestLoadYamlFile(t *testing.T) {
 					"401": {
 						Condition: "true",
 						Status:    401,
-						Body:      "{\n  \"message\": \"Unauthorized\"\n}\n",
+						Header: map[string]string{
+							"Content-Type": "application/json",
+						},
+						Body: "{\n  \"message\": \"Unauthorized\"\n}\n",
 					},
 				},
 			},

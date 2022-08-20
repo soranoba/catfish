@@ -18,11 +18,11 @@ type (
 )
 
 func NewRoute(method string, path string) *Route {
-	path = strings.TrimSuffix(strings.TrimPrefix(path, "/"), "/")
+	trimPath := strings.TrimSuffix(strings.TrimPrefix(path, "/"), "/")
 	return &Route{
 		method:         strings.ToUpper(method),
 		path:           path,
-		pathComponents: strings.Split(path, "/"),
+		pathComponents: strings.Split(trimPath, "/"),
 	}
 }
 

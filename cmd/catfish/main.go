@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/jessevdk/go-flags"
+	"github.com/sirupsen/logrus"
 	"github.com/soranoba/catfish-server/pkg/config"
 	"log"
 	"net/http"
@@ -31,7 +32,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	handler := NewHTTPHandler(conf)
+	handler, err := NewHTTPHandler(conf)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	logrus.SetLevel(logrus.DebugLevel)
+
 	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: handler,

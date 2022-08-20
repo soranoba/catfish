@@ -8,7 +8,11 @@ import (
 
 type (
 	Config struct {
-		Routes []Route `yaml:"routes"`
+		Default Default `yaml:"default"`
+		Routes  []Route `yaml:"routes"`
+	}
+	Default struct {
+		Response Response `yaml:"response"`
 	}
 	Route struct {
 		Method   string              `yaml:"method" validate:"min=1"`
