@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/soranoba/catfish-server/pkg/validator"
 	"gopkg.in/yaml.v3"
 	"os"
 )
@@ -33,6 +34,11 @@ func LoadYamlFile(filepath string) (*Config, error) {
 	dec := yaml.NewDecoder(f)
 	if err := dec.Decode(&conf); err != nil {
 		return &conf, err
+	}
+
+	v := validator.NewValidator()
+	if err := v.Validate(&conf); err != nil {
+		return nil, err
 	}
 
 	return &conf, nil

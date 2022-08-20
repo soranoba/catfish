@@ -1,0 +1,33 @@
+default:
+  request:
+  response:
+    content-type: application/json
+routes:
+  - method: GET
+    path: /users/:id
+    response:
+      200:
+        cond: rand(0.8)
+        status: 200
+        body: >
+          {
+            "id": 1,
+            "name": "Alice"
+          }
+      500:
+        cond: true
+        status: 500
+        body: >
+          {
+            "message": "Internal Server Error"
+          }
+  - method: POST
+    path: /users
+    response:
+      401:
+        cond: true
+        status: 401
+        body: >
+          {
+            "message": "Unauthorized"
+          }
