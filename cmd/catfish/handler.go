@@ -24,7 +24,7 @@ func NewHTTPHandler(conf *config.Config) (*HTTPHandler, error) {
 	for i, route := range conf.Routes {
 		var presets []*ResponsePreset
 		for name, res := range conf.Routes[i].Response {
-			preset, err := NewResponsePreset(name, res)
+			preset, err := NewResponsePreset(name, &res)
 			if err != nil {
 				errors = append(errors, err)
 			} else {
@@ -34,7 +34,7 @@ func NewHTTPHandler(conf *config.Config) (*HTTPHandler, error) {
 		routes[NewRoute(route.Method, route.Path)] = presets
 	}
 
-	defaultPreset, err := NewResponsePreset("", conf.Default.Response)
+	defaultPreset, err := NewResponsePreset("", &conf.Default.Response)
 	if err != nil {
 		errors = append(errors, err)
 	}
@@ -59,32 +59,32 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 
 	var ctx Context
 	var preset *ResponsePreset
-	var route *Route
-	for r, presets := range h.routes {
-		if r.IsMatch(req, &ctx) {
-			route = r
-			preset = electPreset(presets, h.defaultPreset)
+	var routePath string
+	for route, presets := range h.routes {
+		if route.IsMatch(req, &ctx) {
+			routePath = route.path
+			preset = ElectResponsePreset(presets, h.defaultPreset)
 			break
 		}
 	}
 
-	h.mx.Unlock()
-
-	if preset != nil {
-		w.Header().Set("X-CATFISH-PATH", route.path)
-	} else {
-		w.Header().Set("X-CATFISH-PATH", "")
+	if preset == nil {
 		preset = h.defaultPreset
 	}
 
-	for k, v := range preset.Header {
-		w.Header().Set(k, v)
-	}
+	h.mx.Unlock()
+
+	w.Header().Set("X-CATFISH-PATH", routePath)
+	w.Header().Set("X-CATFISH-RESPONSE-PRESET-NAME", preset.Name)
 
 	buf := new(bytes.Buffer)
 	if err := preset.BodyTemplate.Execute(buf, ctx); err != nil {
 		logrus.Warnf("Template rendering failed: %v", err)
 		w.Header().Set("X-CATFISH-ERROR", err.Error())
+	}
+
+	for k, v := range preset.Header {
+		w.Header().Set(k, v)
 	}
 
 	w.WriteHeader(preset.Status)

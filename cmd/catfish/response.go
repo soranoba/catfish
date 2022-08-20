@@ -17,7 +17,7 @@ type (
 	}
 )
 
-func NewResponsePreset(name string, res config.Response) (*ResponsePreset, error) {
+func NewResponsePreset(name string, res *config.Response) (*ResponsePreset, error) {
 	tpl, err := template.New(res.Body)
 	if err != nil {
 		return nil, err
@@ -32,14 +32,14 @@ func NewResponsePreset(name string, res config.Response) (*ResponsePreset, error
 	}, nil
 }
 
-func electPreset(presets []*ResponsePreset, defaultPreset *ResponsePreset) *ResponsePreset {
+func ElectResponsePreset(presets []*ResponsePreset, defaultPreset *ResponsePreset) *ResponsePreset {
 	amountScore := float64(0)
 	val := rand.Float64()
 
 	evaler := evaler.New()
 	for _, preset := range presets {
 		score, _ := evaler.Eval(preset.Condition)
-		if score-amountScore > val {
+		if score+amountScore > val {
 			return preset
 		}
 		amountScore += score
