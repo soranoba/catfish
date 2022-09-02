@@ -5,6 +5,10 @@ CONFIG_PKG   = github.com/soranoba/catfish-server
 build:
 	${CMDS} | xargs -I@ go build -ldflags "-X ${CONFIG_PKG}.AppVersion=${VERSION}" -o bin/@ ./cmd/@
 
+release:
+	${CMDS} | CGO_ENABLED=0 GOOS=linux GOARCH=amd64 xargs -I@ \
+		go build -ldflags "-s -w -X ${CONFIG_PKG}.AppVersion=${VERSION}" -o bin/@ -a ./cmd/@
+
 start:
 	go run -a ./cmd/catfish -- --config=./bin/config.yml
 
