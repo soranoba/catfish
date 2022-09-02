@@ -5,12 +5,14 @@ import (
 	"github.com/soranoba/catfish-server/pkg/evaler"
 	"github.com/soranoba/catfish-server/pkg/template"
 	"math/rand"
+	"time"
 )
 
 type (
 	ResponsePreset struct {
 		Name         string
 		Condition    string
+		Delay        time.Duration
 		Status       int
 		Header       map[string]string
 		BodyTemplate *template.Template
@@ -26,6 +28,7 @@ func NewResponsePreset(name string, res *config.Response) (*ResponsePreset, erro
 	return &ResponsePreset{
 		Name:         name,
 		Condition:    res.Condition,
+		Delay:        time.Duration(res.Delay * 1000_000_000),
 		Status:       res.Status,
 		Header:       res.Header,
 		BodyTemplate: tpl,

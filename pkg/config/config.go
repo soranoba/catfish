@@ -21,6 +21,7 @@ type (
 	}
 	Response struct {
 		Condition string            `yaml:"cond"`
+		Delay     float64           `yaml:"delay"`
 		Status    int               `yaml:"status" validate:"min=100,max=599"`
 		Header    map[string]string `yaml:"header"`
 		Body      string            `yaml:"body"`

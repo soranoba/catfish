@@ -13,7 +13,8 @@ routes:
     path: /users/:id
     response:
       200:
-        cond: rand(0.8)
+        cond: 0.8
+        delay: 0.1
         status: 200
         header:
           Content-Type: application/json

@@ -31,7 +31,8 @@ func TestLoadYamlFile(t *testing.T) {
 				Path:   "/users/:id",
 				Response: map[string]Response{
 					"200": {
-						Condition: "rand(0.8)",
+						Condition: "0.8",
+						Delay:     0.1,
 						Status:    200,
 						Header: map[string]string{
 							"Content-Type": "application/json",

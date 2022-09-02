@@ -6,6 +6,7 @@ import (
 	"github.com/soranoba/catfish-server/pkg/config"
 	"net/http"
 	"sync"
+	"time"
 )
 
 type (
@@ -73,6 +74,8 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 	}
 
 	h.mx.Unlock()
+
+	time.Sleep(preset.Delay)
 
 	w.Header().Set("X-CATFISH-PATH", routePath)
 	w.Header().Set("X-CATFISH-RESPONSE-PRESET-NAME", preset.Name)
