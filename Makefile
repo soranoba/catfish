@@ -6,7 +6,7 @@ build:
 	${CMDS} | xargs -I@ go build -ldflags "-X ${CONFIG_PKG}.AppVersion=${VERSION}" -o bin/@ ./cmd/@
 
 start:
-	go run -a ./cmd/catfish
+	go run -a ./cmd/catfish -- --config=./bin/config.yml
 
 test:
 	go test ./... -count=1

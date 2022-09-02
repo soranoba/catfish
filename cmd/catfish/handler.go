@@ -81,6 +81,8 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 	if err := preset.BodyTemplate.Execute(buf, ctx); err != nil {
 		logrus.Warnf("Template rendering failed: %v", err)
 		w.Header().Set("X-CATFISH-ERROR", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	for k, v := range preset.Header {
