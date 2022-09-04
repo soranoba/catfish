@@ -18,8 +18,9 @@ func TestLoadYamlFile(t *testing.T) {
 	assert.Equal(Config{
 		Routes: []Route{
 			{
-				Method: "GET",
-				Path:   "/users/:id",
+				Method:     "GET",
+				Path:       "/users/:id",
+				ParserName: "json",
 				Response: map[string]Response{
 					"200": {
 						Condition: "0.8",

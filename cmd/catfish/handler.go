@@ -14,12 +14,18 @@ type (
 	HTTPHandler struct {
 		config config.Config
 		mx     sync.Mutex
-		routes map[*Route][]*ResponsePreset
+		routes map[*Route]*RouteData
+	}
+	RouteData struct {
+		parser  Parser
+		presets []*ResponsePreset
 	}
 	Context struct {
-		Method string
-		URL    *url.URL
-		Param  map[string]string
+		Method     string
+		URL        *url.URL
+		Param      map[string]string
+		Body       map[string]interface{}
+		ParseError error
 	}
 )
 
@@ -36,7 +42,7 @@ func init() {
 
 func NewHTTPHandler(conf *config.Config) (*HTTPHandler, error) {
 	errors := make([]error, 0)
-	routes := make(map[*Route][]*ResponsePreset)
+	routes := make(map[*Route]*RouteData)
 
 	for i, route := range conf.Routes {
 		var presets []*ResponsePreset
@@ -48,7 +54,10 @@ func NewHTTPHandler(conf *config.Config) (*HTTPHandler, error) {
 				presets = append(presets, preset)
 			}
 		}
-		routes[NewRoute(route.Method, route.Path)] = presets
+		routes[NewRoute(route.Method, route.Path)] = &RouteData{
+			parser:  NewParserWithName(route.ParserName),
+			presets: presets,
+		}
 	}
 
 	if len(errors) > 0 {
@@ -71,10 +80,12 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 	var param map[string]string
 	var preset *ResponsePreset
 	var routePath string
-	for route, presets := range h.routes {
+	var parser Parser
+	for route, data := range h.routes {
 		if route.IsMatch(req, &param) {
 			routePath = route.path
-			preset = ElectResponsePreset(presets, defaultPreset)
+			parser = data.parser
+			preset = ElectResponsePreset(data.presets, defaultPreset)
 			break
 		}
 	}
@@ -90,11 +101,19 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("X-CATFISH-PATH", routePath)
 	w.Header().Set("X-CATFISH-RESPONSE-PRESET-NAME", preset.Name)
 
+	var body map[string]interface{}
+	var parseError error
+	if parser != nil {
+		parseError = parser.Parse(req.Body, &body)
+	}
+
 	buf := new(bytes.Buffer)
 	ctx := Context{
-		Method: req.Method,
-		URL:    req.URL,
-		Param:  param,
+		Method:     req.Method,
+		URL:        req.URL,
+		Param:      param,
+		Body:       body,
+		ParseError: parseError,
 	}
 	if err := preset.BodyTemplate.Execute(buf, &ctx); err != nil {
 		logrus.Warnf("Template rendering failed: %v", err)

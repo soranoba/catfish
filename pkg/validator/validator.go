@@ -15,7 +15,7 @@ type (
 func NewValidator() *Validator {
 	v := valis.NewValidator()
 	v.SetCommonRules(
-		when.IsStruct(valis.EachFields(tagrule.Required, tagrule.Validate)).
+		when.IsStruct(valis.EachFields(tagrule.Required, tagrule.Validate, tagrule.Enums)).
 			ElseWhen(when.IsSliceOrArray(valis.Each( /* only common rules */ ))).
 			ElseWhen(when.IsMap(valis.EachValues( /* only common rules */ ))),
 	)

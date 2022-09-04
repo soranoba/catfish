@@ -26,6 +26,7 @@ docker run -p 8080:8080 -v ${YOUR_CONFIG}:/etc/catfish/config.yml catfish
 |:---|:---|:---|:---|:---|
 |method|`String`|o|`GET`|HTTP method.<br>Allowed values are `GET`, `POST`, `PUT`, `DELETE` or `*`.<br>`*` means any HTTP method.|
 |path|`String`|o|`/users/:id`|HTTP path. You can include path parameters.|
+|parser|`String`|x|`json`|HTTP request body parser.<br>Allowed value is `json`.|
 |response|`Dictionary<String,Response>`|o| |The key is used as the response preset name. (See also `X-CATFISH-RESPONSE-PRESET-NAME`)<br>When Catfish receives a request, it decides to whether to use the preset in order from the top. |
 
 #### Response

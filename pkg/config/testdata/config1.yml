@@ -1,6 +1,7 @@
 routes:
   - method: GET
     path: /users/:id
+    parser: json
     response:
       200:
         cond: 0.8
