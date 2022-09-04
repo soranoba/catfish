@@ -62,3 +62,8 @@ Catfish automatically add some headers in responses to easily debug with.
 |X-CATFISH-PATH|o|Indicates that Catfish returned the response according to the path setting.|
 |X-CATFISH-RESPONSE-PRESET-NAME|o|Indicates that Catfish returned the response according to the preset setting.|
 |X-CATFISH-ERROR|x|The descriptions of an error.|
+
+### Response body
+
+You can use variables, etc with [text/template](https://pkg.go.dev/text/template) format.<br>
+The data passed to the template engine is [main.Context]().
