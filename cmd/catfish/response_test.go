@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/soranoba/catfish-server/pkg/config"
+	"github.com/soranoba/catfish/pkg/config"
 	"github.com/soranoba/henge/v2"
 	"github.com/stretchr/testify/assert"
 	"testing"

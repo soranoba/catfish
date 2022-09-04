@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"github.com/sirupsen/logrus"
-	"github.com/soranoba/catfish-server/pkg/config"
+	"github.com/soranoba/catfish/pkg/config"
 	"net/http"
 	"sync"
 	"time"

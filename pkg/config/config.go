@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/soranoba/catfish-server/pkg/validator"
+	"github.com/soranoba/catfish/pkg/validator"
 	"gopkg.in/yaml.v3"
 	"os"
 )

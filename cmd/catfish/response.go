@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/soranoba/catfish-server/pkg/config"
-	"github.com/soranoba/catfish-server/pkg/evaler"
-	"github.com/soranoba/catfish-server/pkg/template"
+	"github.com/soranoba/catfish/pkg/config"
+	"github.com/soranoba/catfish/pkg/evaler"
+	"github.com/soranoba/catfish/pkg/template"
 	"math/rand"
 	"time"
 )

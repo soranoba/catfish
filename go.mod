@@ -1,4 +1,4 @@
-module github.com/soranoba/catfish-server
+module github.com/soranoba/catfish
 
 go 1.16
 

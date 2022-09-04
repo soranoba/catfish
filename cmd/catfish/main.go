@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/jessevdk/go-flags"
 	"github.com/sirupsen/logrus"
-	"github.com/soranoba/catfish-server/pkg/config"
+	"github.com/soranoba/catfish/pkg/config"
 	"log"
 	"net/http"
 	"os"
