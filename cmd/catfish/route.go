@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -9,7 +10,8 @@ type (
 	Route struct {
 		method         string
 		path           string
-		pathComponents []string
+		pathParameters []string
+		re             *regexp.Regexp
 	}
 
 	Context struct {
@@ -18,11 +20,29 @@ type (
 )
 
 func NewRoute(method string, path string) *Route {
-	trimPath := strings.TrimSuffix(strings.TrimPrefix(path, "/"), "/")
+	regTexts := make([]string, 0)
+	pathParameters := make([]string, 0)
+	for _, segment := range strings.Split(strings.TrimSuffix(strings.TrimPrefix(path, "/"), "/"), "/") {
+		if strings.HasPrefix(segment, ":") {
+			pathParameters = append(pathParameters, strings.Trim(segment, ":"))
+			regTexts = append(regTexts, "([^/]*)")
+		} else if strings.HasPrefix(segment, "*") {
+			pathParameters = append(pathParameters, strings.Trim(segment, "*"))
+			if len(regTexts) == 0 {
+				regTexts = append(regTexts, "(.*)")
+			} else {
+				regTexts[len(regTexts)-1] += "/?(.*)"
+			}
+		} else {
+			regTexts = append(regTexts, regexp.QuoteMeta(segment))
+		}
+	}
+
 	return &Route{
 		method:         strings.ToUpper(method),
 		path:           path,
-		pathComponents: strings.Split(trimPath, "/"),
+		pathParameters: pathParameters,
+		re:             regexp.MustCompile("^" + strings.Join(regTexts, "/") + "$"),
 	}
 }
 
@@ -31,23 +51,18 @@ func (r *Route) IsMatch(req *http.Request, ctxOut *Context) bool {
 		return false
 	}
 
-	if r.method != req.Method {
+	if r.method != strings.ToUpper(req.Method) {
 		return false
 	}
 
-	path := strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/"), "/")
-	pc := strings.Split(path, "/")
-	if len(pc) != len(r.pathComponents) {
+	matched := r.re.FindStringSubmatch(strings.TrimSuffix(strings.TrimPrefix(req.URL.Path, "/"), "/"))
+	if len(matched) == 0 {
 		return false
 	}
 
 	param := make(map[string]string)
-	for i := 0; i < len(pc); i++ {
-		if strings.HasPrefix(r.pathComponents[i], ":") {
-			param[strings.TrimPrefix(r.pathComponents[i], ":")] = pc[i]
-		} else if r.pathComponents[i] != pc[i] {
-			return false
-		}
+	for i := 0; i < len(r.pathParameters); i++ {
+		param[r.pathParameters[i]] = matched[i+1]
 	}
 
 	if ctxOut != nil {
