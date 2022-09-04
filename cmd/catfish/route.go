@@ -27,7 +27,7 @@ func NewRoute(method string, path string) *Route {
 			if len(regTexts) == 0 {
 				regTexts = append(regTexts, "(.*)")
 			} else {
-				regTexts[len(regTexts)-1] += "/?(.*)"
+				regTexts[len(regTexts)-1] += "(?:/?|/(.*))"
 			}
 		} else {
 			regTexts = append(regTexts, regexp.QuoteMeta(segment))

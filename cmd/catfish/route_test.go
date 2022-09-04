@@ -113,6 +113,16 @@ func TestRoute_IsMatch(t *testing.T) {
 		NewRequest("GET", "https://example.com/a/b/x/c/d"),
 		map[string]string{"a": "a/b", "b": "c/d"},
 	)
+	check(
+		NewRoute("GET", "/user/*b"),
+		NewRequest("GET", "https://example.com/useraction"),
+		nil,
+	)
+	check(
+		NewRoute("GET", "/user/*x/actions/:id"),
+		NewRequest("GET", "https://example.com/user/actions/1"),
+		map[string]string{"x": "", "id": "1"},
+	)
 
 	// Trailing slash
 	check(
