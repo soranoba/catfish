@@ -25,9 +25,14 @@ func NewResponsePreset(name string, res *config.Response) (*ResponsePreset, erro
 		return nil, err
 	}
 
+	cond := res.Condition
+	if cond == "" {
+		cond = "1.0"
+	}
+
 	return &ResponsePreset{
 		Name:         name,
-		Condition:    res.Condition,
+		Condition:    cond,
 		Delay:        time.Duration(res.Delay * 1000_000_000),
 		Status:       res.Status,
 		Header:       res.Header,

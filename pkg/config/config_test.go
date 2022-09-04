@@ -16,15 +16,6 @@ func TestLoadYamlFile(t *testing.T) {
 	conf, err := LoadYamlFile(filepath.Join(dir, "testdata/config1.yml"))
 	assert.NoError(err)
 	assert.Equal(Config{
-		Default: Default{
-			Response: Response{
-				Status: 404,
-				Header: map[string]string{
-					"Content-Type": "application/json",
-				},
-				Body: "{\n  \"message\": \"Not Found\"\n}\n",
-			},
-		},
 		Routes: []Route{
 			{
 				Method: "GET",
@@ -60,6 +51,19 @@ func TestLoadYamlFile(t *testing.T) {
 							"Content-Type": "application/json",
 						},
 						Body: "{\n  \"message\": \"Unauthorized\"\n}\n",
+					},
+				},
+			},
+			{
+				Method: "*",
+				Path:   "*",
+				Response: map[string]Response{
+					"default": {
+						Status: 404,
+						Header: map[string]string{
+							"Content-Type": "application/json",
+						},
+						Body: "{\n  \"message\": \"Not Found\"\n}\n",
 					},
 				},
 			},

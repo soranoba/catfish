@@ -42,3 +42,21 @@ func TestElectResponsePreset(t *testing.T) {
 		assert.True(max >= counts[preset.Name])
 	}
 }
+
+func TestElectResponsePreset_empty_cond(t *testing.T) {
+	assert := assert.New(t)
+
+	preset, err := NewResponsePreset("200", &config.Response{
+		Status: 200,
+	})
+	if !assert.NoError(err) {
+		return
+	}
+
+	presets := []*ResponsePreset{preset}
+	totalElect := 100
+	for i := 0; i < totalElect; i++ {
+		preset := ElectResponsePreset(presets, nil)
+		assert.NotNil(preset)
+	}
+}

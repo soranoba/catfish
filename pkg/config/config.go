@@ -8,14 +8,10 @@ import (
 
 type (
 	Config struct {
-		Default Default `yaml:"default"`
-		Routes  []Route `yaml:"routes"`
-	}
-	Default struct {
-		Response Response `yaml:"response"`
+		Routes []Route `yaml:"routes"`
 	}
 	Route struct {
-		Method   string              `yaml:"method" validate:"min=1"`
+		Method   string              `yaml:"method" validate:"enums=GET POST PUT DELETE *"`
 		Path     string              `yaml:"path" validate:"min=1"`
 		Response map[string]Response `yaml:"response" required:"true" validate:"min=1"`
 	}

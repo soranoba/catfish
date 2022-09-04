@@ -11,12 +11,22 @@ import (
 
 type (
 	HTTPHandler struct {
-		config        config.Config
-		mx            sync.Mutex
-		routes        map[*Route][]*ResponsePreset
-		defaultPreset *ResponsePreset
+		config config.Config
+		mx     sync.Mutex
+		routes map[*Route][]*ResponsePreset
 	}
 )
+
+var (
+	defaultPreset *ResponsePreset
+)
+
+func init() {
+	defaultPreset, _ = NewResponsePreset("", &config.Response{
+		Status: 404,
+		Body:   "Not Found\n",
+	})
+}
 
 func NewHTTPHandler(conf *config.Config) (*HTTPHandler, error) {
 	errors := make([]error, 0)
@@ -35,19 +45,13 @@ func NewHTTPHandler(conf *config.Config) (*HTTPHandler, error) {
 		routes[NewRoute(route.Method, route.Path)] = presets
 	}
 
-	defaultPreset, err := NewResponsePreset("", &conf.Default.Response)
-	if err != nil {
-		errors = append(errors, err)
-	}
-
 	if len(errors) > 0 {
 		logrus.Error(errors)
 	}
 
 	return &HTTPHandler{
-		config:        *conf,
-		routes:        routes,
-		defaultPreset: defaultPreset,
+		config: *conf,
+		routes: routes,
 	}, nil
 }
 
@@ -64,13 +68,13 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 	for route, presets := range h.routes {
 		if route.IsMatch(req, &ctx) {
 			routePath = route.path
-			preset = ElectResponsePreset(presets, h.defaultPreset)
+			preset = ElectResponsePreset(presets, defaultPreset)
 			break
 		}
 	}
 
 	if preset == nil {
-		preset = h.defaultPreset
+		preset = defaultPreset
 	}
 
 	h.mx.Unlock()

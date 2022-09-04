@@ -36,6 +36,13 @@ func TestRoute_IsMatch(t *testing.T) {
 		map[string]string{},
 	)
 
+	// Special HTTP Method
+	check(
+		NewRoute("*", "/users"),
+		NewRequest("GET", "https://example.com/users"),
+		map[string]string{},
+	)
+
 	// Different HTTP Methods
 	check(
 		NewRoute("GET", "/users"),

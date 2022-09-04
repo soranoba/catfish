@@ -1,13 +1,3 @@
-default:
-  request:
-  response:
-    status: 404
-    header:
-      Content-Type: application/json
-    body: >
-      {
-        "message": "Not Found"
-      }
 routes:
   - method: GET
     path: /users/:id
@@ -43,4 +33,15 @@ routes:
         body: >
           {
             "message": "Unauthorized"
+          }
+  - method: "*"
+    path: "*"
+    response:
+      default:
+        status: 404
+        header:
+          Content-Type: application/json
+        body: >
+          {
+            "message": "Not Found"
           }

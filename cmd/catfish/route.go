@@ -51,7 +51,7 @@ func (r *Route) IsMatch(req *http.Request, ctxOut *Context) bool {
 		return false
 	}
 
-	if r.method != strings.ToUpper(req.Method) {
+	if r.method != "*" && r.method != strings.ToUpper(req.Method) {
 		return false
 	}
 
