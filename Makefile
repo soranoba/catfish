@@ -1,6 +1,6 @@
 VERSION     := $(shell git describe --always --tags --abbrev=10)
 CMDS         = ls -d cmd/* | xargs -I@ basename @
-CONFIG_PKG   = github.com/soranoba/catfish
+CONFIG_PKG   = github.com/soranoba/catfish/pkg/config
 
 build:
 	${CMDS} | xargs -I@ go build -ldflags "-X ${CONFIG_PKG}.AppVersion=${VERSION}" -o bin/@ ./cmd/@

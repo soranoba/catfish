@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/jessevdk/go-flags"
 	"github.com/sirupsen/logrus"
 	"github.com/soranoba/catfish/pkg/config"
@@ -22,6 +23,7 @@ func main() {
 	_, err := optsParser.Parse()
 
 	if opts.Version {
+		fmt.Println(config.AppVersion)
 		os.Exit(0)
 	} else if err != nil {
 		log.Fatal(err)
