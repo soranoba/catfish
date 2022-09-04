@@ -19,9 +19,9 @@ func TestRoute_IsMatch(t *testing.T) {
 		if req == nil {
 			return
 		}
-		var ctx Context
-		assert.Equal(pathParameters != nil, route.IsMatch(req, &ctx), "[%s] %s", req.Method, req.URL)
-		assert.Equal(pathParameters, ctx.Param, "[%s] %s", req.Method, req.URL)
+		var param map[string]string
+		assert.Equal(pathParameters != nil, route.IsMatch(req, &param), "[%s] %s", req.Method, req.URL)
+		assert.Equal(pathParameters, param, "[%s] %s", req.Method, req.URL)
 	}
 
 	// HTTP Method is case insensitive

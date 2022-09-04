@@ -5,6 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/soranoba/catfish/pkg/config"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 )
@@ -14,6 +15,11 @@ type (
 		config config.Config
 		mx     sync.Mutex
 		routes map[*Route][]*ResponsePreset
+	}
+	Context struct {
+		Method string
+		URL    *url.URL
+		Param  map[string]string
 	}
 )
 
@@ -62,11 +68,11 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 	h.mx.Lock()
 
-	var ctx Context
+	var param map[string]string
 	var preset *ResponsePreset
 	var routePath string
 	for route, presets := range h.routes {
-		if route.IsMatch(req, &ctx) {
+		if route.IsMatch(req, &param) {
 			routePath = route.path
 			preset = ElectResponsePreset(presets, defaultPreset)
 			break
@@ -85,7 +91,12 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("X-CATFISH-RESPONSE-PRESET-NAME", preset.Name)
 
 	buf := new(bytes.Buffer)
-	if err := preset.BodyTemplate.Execute(buf, ctx); err != nil {
+	ctx := Context{
+		Method: req.Method,
+		URL:    req.URL,
+		Param:  param,
+	}
+	if err := preset.BodyTemplate.Execute(buf, &ctx); err != nil {
 		logrus.Warnf("Template rendering failed: %v", err)
 		w.Header().Set("X-CATFISH-ERROR", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)

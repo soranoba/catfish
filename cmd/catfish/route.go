@@ -8,26 +8,22 @@ import (
 
 type (
 	Route struct {
-		method         string
-		path           string
-		pathParameters []string
-		re             *regexp.Regexp
-	}
-
-	Context struct {
-		Param map[string]string
+		method     string
+		path       string
+		paramNames []string
+		re         *regexp.Regexp
 	}
 )
 
 func NewRoute(method string, path string) *Route {
 	regTexts := make([]string, 0)
-	pathParameters := make([]string, 0)
+	paramNames := make([]string, 0)
 	for _, segment := range strings.Split(strings.TrimSuffix(strings.TrimPrefix(path, "/"), "/"), "/") {
 		if strings.HasPrefix(segment, ":") {
-			pathParameters = append(pathParameters, strings.Trim(segment, ":"))
+			paramNames = append(paramNames, strings.Trim(segment, ":"))
 			regTexts = append(regTexts, "([^/]*)")
 		} else if strings.HasPrefix(segment, "*") {
-			pathParameters = append(pathParameters, strings.Trim(segment, "*"))
+			paramNames = append(paramNames, strings.Trim(segment, "*"))
 			if len(regTexts) == 0 {
 				regTexts = append(regTexts, "(.*)")
 			} else {
@@ -39,14 +35,14 @@ func NewRoute(method string, path string) *Route {
 	}
 
 	return &Route{
-		method:         strings.ToUpper(method),
-		path:           path,
-		pathParameters: pathParameters,
-		re:             regexp.MustCompile("^" + strings.Join(regTexts, "/") + "$"),
+		method:     strings.ToUpper(method),
+		path:       path,
+		paramNames: paramNames,
+		re:         regexp.MustCompile("^" + strings.Join(regTexts, "/") + "$"),
 	}
 }
 
-func (r *Route) IsMatch(req *http.Request, ctxOut *Context) bool {
+func (r *Route) IsMatch(req *http.Request, paramOut *map[string]string) bool {
 	if r == nil {
 		return false
 	}
@@ -61,12 +57,12 @@ func (r *Route) IsMatch(req *http.Request, ctxOut *Context) bool {
 	}
 
 	param := make(map[string]string)
-	for i := 0; i < len(r.pathParameters); i++ {
-		param[r.pathParameters[i]] = matched[i+1]
+	for i := 0; i < len(r.paramNames); i++ {
+		param[r.paramNames[i]] = matched[i+1]
 	}
 
-	if ctxOut != nil {
-		*ctxOut = Context{Param: param}
+	if paramOut != nil {
+		*paramOut = param
 	}
 	return true
 }
