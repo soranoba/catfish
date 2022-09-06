@@ -32,7 +32,7 @@ func TestLoadYamlFile(t *testing.T) {
 						Body: "{\n  \"id\": 1,\n  \"name\": \"Alice\"\n}\n",
 					},
 					"500": {
-						Condition: "true",
+						Condition: "1.0",
 						Status:    500,
 						Header: map[string]string{
 							"Content-Type": "application/json",

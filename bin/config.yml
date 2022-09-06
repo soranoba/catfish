@@ -4,7 +4,7 @@ routes:
     response:
       200:
         cond: 0.8
-        delay: 1.0
+        delay: 0.0
         status: 200
         header:
           Content-Type: application/json
@@ -14,7 +14,7 @@ routes:
             "name": "Alice"
           }
       500:
-        cond: true
+        cond: 1.0
         status: 500
         header:
           Content-Type: application/json

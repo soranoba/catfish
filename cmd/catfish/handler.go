@@ -14,9 +14,10 @@ type (
 	HTTPHandler struct {
 		config config.Config
 		mx     sync.Mutex
-		routes map[*Route]*RouteData
+		routes []*RouteData
 	}
 	RouteData struct {
+		*Route
 		parser  Parser
 		presets []*ResponsePreset
 	}
@@ -42,7 +43,7 @@ func init() {
 
 func NewHTTPHandler(conf *config.Config) (*HTTPHandler, error) {
 	errors := make([]error, 0)
-	routes := make(map[*Route]*RouteData)
+	routes := make([]*RouteData, 0)
 
 	for i, route := range conf.Routes {
 		var presets []*ResponsePreset
@@ -54,10 +55,11 @@ func NewHTTPHandler(conf *config.Config) (*HTTPHandler, error) {
 				presets = append(presets, preset)
 			}
 		}
-		routes[NewRoute(route.Method, route.Path)] = &RouteData{
+		routes = append(routes, &RouteData{
+			Route:   NewRoute(route.Method, route.Path),
 			parser:  NewParserWithName(route.ParserName),
 			presets: presets,
-		}
+		})
 	}
 
 	if len(errors) > 0 {
@@ -81,11 +83,11 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 	var preset *ResponsePreset
 	var routePath string
 	var parser Parser
-	for route, data := range h.routes {
+	for _, route := range h.routes {
 		if route.IsMatch(req, &param) {
 			routePath = route.path
-			parser = data.parser
-			preset = ElectResponsePreset(data.presets, defaultPreset)
+			parser = route.parser
+			preset = ElectResponsePreset(route.presets, defaultPreset)
 			break
 		}
 	}
