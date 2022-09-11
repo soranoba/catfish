@@ -44,9 +44,9 @@ func ElectResponsePreset(presets []*ResponsePreset, defaultPreset *ResponsePrese
 	amountScore := float64(0)
 	val := rand.Float64()
 
-	evaler := evaler.New()
+	e := evaler.New()
 	for _, preset := range presets {
-		score, _ := evaler.Eval(preset.Condition)
+		score, _ := e.Eval(preset.Condition, evaler.Args{})
 		if score+amountScore > val {
 			return preset
 		}
