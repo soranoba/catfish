@@ -77,6 +77,14 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
+	if req.Method == http.MethodOptions {
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
 	h.mx.Lock()
 
 	var param map[string]string
