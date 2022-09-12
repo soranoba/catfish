@@ -14,14 +14,15 @@ func TestElectResponsePreset(t *testing.T) {
 	var responses [5]*config.Response
 	for i, _ := range responses {
 		responses[i] = &config.Response{
+			Name:      henge.ToString(i),
 			Condition: "0.2",
 			Status:    200 + i,
 		}
 	}
 
 	var presets []*ResponsePreset
-	for i, res := range responses {
-		preset, err := NewResponsePreset(henge.ToString(i), res)
+	for _, res := range responses {
+		preset, err := NewResponsePreset(res)
 		if assert.NoError(err) {
 			presets = append(presets, preset)
 		}
@@ -48,7 +49,8 @@ func TestElectResponsePreset(t *testing.T) {
 func TestElectResponsePreset_empty_cond(t *testing.T) {
 	assert := assert.New(t)
 
-	preset, err := NewResponsePreset("200", &config.Response{
+	preset, err := NewResponsePreset(&config.Response{
+		Name:   "200",
 		Status: 200,
 	})
 	if !assert.NoError(err) {

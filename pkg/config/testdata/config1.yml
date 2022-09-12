@@ -3,7 +3,7 @@ routes:
     path: /users/:id
     parser: json
     response:
-      200:
+      - name: 200
         cond: 0.8
         delay: 0.1
         status: 200
@@ -14,7 +14,7 @@ routes:
             "id": 1,
             "name": "Alice"
           }
-      500:
+      - name: 500
         cond: 1.0
         status: 500
         header:
@@ -26,7 +26,7 @@ routes:
   - method: POST
     path: /users
     response:
-      401:
+      - name: 401
         cond: true
         status: 401
         header:
@@ -38,7 +38,7 @@ routes:
   - method: "*"
     path: "*"
     response:
-      default:
+      - name: default
         status: 404
         header:
           Content-Type: application/json

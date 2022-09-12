@@ -21,8 +21,9 @@ func TestLoadYamlFile(t *testing.T) {
 				Method:     "GET",
 				Path:       "/users/:id",
 				ParserName: "json",
-				Response: map[string]Response{
-					"200": {
+				Response: []Response{
+					{
+						Name:      "200",
 						Condition: "0.8",
 						Delay:     0.1,
 						Status:    200,
@@ -31,7 +32,8 @@ func TestLoadYamlFile(t *testing.T) {
 						},
 						Body: "{\n  \"id\": 1,\n  \"name\": \"Alice\"\n}\n",
 					},
-					"500": {
+					{
+						Name:      "500",
 						Condition: "1.0",
 						Status:    500,
 						Header: map[string]string{
@@ -44,8 +46,9 @@ func TestLoadYamlFile(t *testing.T) {
 			{
 				Method: "POST",
 				Path:   "/users",
-				Response: map[string]Response{
-					"401": {
+				Response: []Response{
+					{
+						Name:      "401",
 						Condition: "true",
 						Status:    401,
 						Header: map[string]string{
@@ -58,8 +61,9 @@ func TestLoadYamlFile(t *testing.T) {
 			{
 				Method: "*",
 				Path:   "*",
-				Response: map[string]Response{
-					"default": {
+				Response: []Response{
+					{
+						Name:   "default",
 						Status: 404,
 						Header: map[string]string{
 							"Content-Type": "application/json",

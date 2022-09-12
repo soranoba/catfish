@@ -22,22 +22,23 @@ docker run -p 8080:8080 -v ${YOUR_CONFIG}:/etc/catfish/config.yml catfish
 
 #### Route
 
-| Field    | Type                          | Required | Example      | Description                                                                                                                                                                                 |
-|:---------|:------------------------------|:---------|:-------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| method   | `String`                      | o        | `GET`        | HTTP method.<br>Allowed values are `GET`, `POST`, `PUT`, `DELETE` or `*`.<br>`*` means any HTTP method.                                                                                     |
-| path     | `String`                      | o        | `/users/:id` | HTTP path. You can include path parameters.                                                                                                                                                 |
-| parser   | `String`                      | x        | `json`       | HTTP request body parser.<br>Allowed value is `json`.                                                                                                                                       |
-| response | `Dictionary<String,Response>` | o        |              | The key is used as the response preset name. (See also `X-CATFISH-RESPONSE-PRESET-NAME`)<br>When Catfish receives a request, it decides to whether to use the preset in order from the top. |
+| Field    | Type              | Required | Example      | Description                                                                                             |
+|:---------|:------------------|:---------|:-------------|:--------------------------------------------------------------------------------------------------------|
+| method   | `String`          | o        | `GET`        | HTTP method.<br>Allowed values are `GET`, `POST`, `PUT`, `DELETE` or `*`.<br>`*` means any HTTP method. |
+| path     | `String`          | o        | `/users/:id` | HTTP path. You can include path parameters.                                                             |
+| parser   | `String`          | x        | `json`       | HTTP request body parser.<br>Allowed value is `json`.                                                   |
+| response | `Array<Response>` | o        |              | When Catfish receives a request, it decides to whether to use the preset in order from the top.         |
 
 #### Response
 
-| Field  | Type                        | Required | Example                 | Description                                                                     |
-|:-------|:----------------------------|:---------|:------------------------|:--------------------------------------------------------------------------------|
-| cond   | `String`                    | x        | `totalRequestCount < 2` | A conditional expression indicating the probability of returning this response. |
-| delay  | `Float`                     | x        | `0.1`                   | Delay time before response is returned. (sec)                                   |
-| status | `Integer`                   | o        | `200`                   | HTTP Status code                                                                |
-| header | `Dictionary<String,String>` | x        |                         | HTTP response headers                                                           |
-| body   | `String`                    | x        | `{"message":"OK"}`      | HTTP response body                                                              |
+| Field  | Type                        | Required | Example                 | Description                                                                   |
+|:-------|:----------------------------|:---------|:------------------------|:------------------------------------------------------------------------------|
+| name   | `String`                    | o        | `Success`               | Response preset name                                                          |
+| cond   | `String`                    | x        | `totalRequestCount < 2` | Conditional expression indicating the probability of returning this response. |
+| delay  | `Float`                     | x        | `0.1`                   | Delay time before response is returned. (sec)                                 |
+| status | `Integer`                   | o        | `200`                   | HTTP Status code                                                              |
+| header | `Dictionary<String,String>` | x        |                         | HTTP response headers                                                         |
+| body   | `String`                    | x        | `{"message":"OK"}`      | HTTP response body                                                            |
 
 ### Condition expression
 

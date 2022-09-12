@@ -19,7 +19,7 @@ type (
 	}
 )
 
-func NewResponsePreset(name string, res *config.Response) (*ResponsePreset, error) {
+func NewResponsePreset(res *config.Response) (*ResponsePreset, error) {
 	tpl, err := template.New(res.Body)
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func NewResponsePreset(name string, res *config.Response) (*ResponsePreset, erro
 	}
 
 	return &ResponsePreset{
-		Name:         name,
+		Name:         res.Name,
 		Condition:    cond,
 		Delay:        time.Duration(res.Delay * 1000_000_000),
 		Status:       res.Status,

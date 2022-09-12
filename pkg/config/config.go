@@ -11,12 +11,13 @@ type (
 		Routes []Route `yaml:"routes"`
 	}
 	Route struct {
-		Method     string              `yaml:"method" enums:"GET,POST,PUT,DELETE,*"`
-		Path       string              `yaml:"path" validate:"min=1"`
-		ParserName string              `yaml:"parser" enums:"json,"`
-		Response   map[string]Response `yaml:"response" required:"true" validate:"min=1"`
+		Method     string     `yaml:"method" enums:"GET,POST,PUT,DELETE,*"`
+		Path       string     `yaml:"path" validate:"min=1"`
+		ParserName string     `yaml:"parser" enums:"json,"`
+		Response   []Response `yaml:"response" required:"true" validate:"min=1"`
 	}
 	Response struct {
+		Name      string            `yaml:"name"`
 		Condition string            `yaml:"cond"`
 		Delay     float64           `yaml:"delay"`
 		Status    int               `yaml:"status" validate:"min=100,max=599"`

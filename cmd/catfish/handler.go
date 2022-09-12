@@ -38,7 +38,7 @@ var (
 )
 
 func init() {
-	defaultPreset, _ = NewResponsePreset("", &config.Response{
+	defaultPreset, _ = NewResponsePreset(&config.Response{
 		Status: 404,
 		Body:   "Not Found\n",
 	})
@@ -50,8 +50,8 @@ func NewHTTPHandler(conf *config.Config) (*HTTPHandler, error) {
 
 	for i, route := range conf.Routes {
 		var presets []*ResponsePreset
-		for name, res := range conf.Routes[i].Response {
-			preset, err := NewResponsePreset(name, &res)
+		for _, res := range conf.Routes[i].Response {
+			preset, err := NewResponsePreset(&res)
 			if err != nil {
 				errors = append(errors, err)
 			} else {
