@@ -33,7 +33,7 @@ docker run -p 8080:8080 -v ${YOUR_CONFIG}:/etc/catfish/config.yml catfish
 
 | Field  | Type                        | Required | Example                 | Description                                                                   |
 |:-------|:----------------------------|:---------|:------------------------|:------------------------------------------------------------------------------|
-| name   | `String`                    | o        | `Success`               | Response preset name                                                          |
+| name   | `String`                    | x        | `Success`               | Response preset name                                                          |
 | cond   | `String`                    | x        | `totalRequestCount < 2` | Conditional expression indicating the probability of returning this response. |
 | delay  | `Float`                     | x        | `0.1`                   | Delay time before response is returned. (sec)                                 |
 | status | `Integer`                   | o        | `200`                   | HTTP Status code                                                              |
