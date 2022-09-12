@@ -8,21 +8,21 @@ import (
 
 type (
 	Config struct {
-		Routes []Route `yaml:"routes"`
+		Routes []Route `yaml:"routes" json:"routes"`
 	}
 	Route struct {
-		Method     string     `yaml:"method" enums:"GET,POST,PUT,DELETE,*"`
-		Path       string     `yaml:"path" validate:"min=1"`
-		ParserName string     `yaml:"parser" enums:"json,"`
-		Response   []Response `yaml:"response" required:"true" validate:"min=1"`
+		Method     string     `yaml:"method" json:"method" enums:"GET,POST,PUT,DELETE,*"`
+		Path       string     `yaml:"path" json:"path" validate:"min=1"`
+		ParserName string     `yaml:"parser" json:"parser" enums:"json,"`
+		Response   []Response `yaml:"response" json:"response" required:"true" validate:"min=1"`
 	}
 	Response struct {
-		Name      string            `yaml:"name"`
-		Condition string            `yaml:"cond"`
-		Delay     float64           `yaml:"delay"`
-		Status    int               `yaml:"status" validate:"min=100,max=599"`
-		Header    map[string]string `yaml:"header"`
-		Body      string            `yaml:"body"`
+		Name      string            `yaml:"name" json:"name"`
+		Condition string            `yaml:"cond" json:"cond"`
+		Delay     float64           `yaml:"delay" json:"delay"`
+		Status    int               `yaml:"status" json:"status" validate:"min=100,max=599"`
+		Header    map[string]string `yaml:"header" json:"header"`
+		Body      string            `yaml:"body" json:"body"`
 	}
 )
 

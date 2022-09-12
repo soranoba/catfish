@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"github.com/sirupsen/logrus"
 	"github.com/soranoba/catfish/pkg/config"
 	"github.com/soranoba/catfish/pkg/evaler"
@@ -12,6 +13,9 @@ import (
 )
 
 type (
+	AdminHTTPHandler struct {
+		*HTTPHandler
+	}
 	HTTPHandler struct {
 		config            config.Config
 		mx                sync.Mutex
@@ -79,12 +83,46 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	h.handleRequest(w, req)
 }
 
+func (h *HTTPHandler) handleAdminRequest(w http.ResponseWriter, req *http.Request) {
+	if req.Method == http.MethodOptions {
+		h.setCORSResponse(w)
+		return
+	}
+
+	h.mx.Lock()
+	defer h.mx.Unlock()
+
+	switch req.Method {
+	case http.MethodGet:
+		switch req.URL.Path {
+		case "/config":
+			b, err := json.Marshal(h.config)
+			if err != nil {
+				h.failedWithError(w, err)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write(b)
+			return
+		}
+	case http.MethodPut:
+		switch req.URL.Path {
+		case "/variables/reset":
+			h.totalRequestCount = 0
+			for _, route := range h.routes {
+				route.routeRequestCount = 0
+			}
+			w.WriteHeader(http.StatusNoContent)
+		}
+	}
+
+	w.WriteHeader(http.StatusNotFound)
+}
+
 func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodOptions {
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.WriteHeader(http.StatusNoContent)
+		h.setCORSResponse(w)
 		return
 	}
 
@@ -157,7 +195,22 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 	w.Write(buf.Bytes())
 }
 
+func (h *HTTPHandler) setCORSResponse(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (h *HTTPHandler) failedWithError(w http.ResponseWriter, err error) {
 	w.Header().Set("X-CATFISH-ERROR", err.Error())
 	w.WriteHeader(http.StatusInternalServerError)
+}
+
+func NewAdminHTTPHandler(h *HTTPHandler) *AdminHTTPHandler {
+	return &AdminHTTPHandler{HTTPHandler: h}
+}
+
+func (h *AdminHTTPHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	h.HTTPHandler.handleAdminRequest(w, req)
 }
