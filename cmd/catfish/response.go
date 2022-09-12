@@ -40,17 +40,20 @@ func NewResponsePreset(name string, res *config.Response) (*ResponsePreset, erro
 	}, nil
 }
 
-func ElectResponsePreset(presets []*ResponsePreset, defaultPreset *ResponsePreset) *ResponsePreset {
+func ElectResponsePreset(presets []*ResponsePreset, args evaler.Args) (*ResponsePreset, error) {
 	amountScore := float64(0)
 	val := rand.Float64()
 
-	e := evaler.New()
+	evaler := evaler.New()
 	for _, preset := range presets {
-		score, _ := e.Eval(preset.Condition, evaler.Args{})
+		score, err := evaler.Eval(preset.Condition, args)
+		if err != nil {
+			return nil, err
+		}
 		if score+amountScore > val {
-			return preset
+			return preset, nil
 		}
 		amountScore += score
 	}
-	return defaultPreset
+	return nil, nil
 }

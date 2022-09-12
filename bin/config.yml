@@ -2,6 +2,15 @@ routes:
   - method: GET
     path: /users/:id
     response:
+      WarmUp:
+        cond: routeRequestCount < 2
+        status: 500
+        header:
+          Content-Type: application/json
+        body: >
+          {
+            "message": "Warn up now.... Please wait."
+          }
       200:
         cond: 0.8
         delay: 0.0

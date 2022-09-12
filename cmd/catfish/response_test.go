@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/soranoba/catfish/pkg/config"
+	"github.com/soranoba/catfish/pkg/evaler"
 	"github.com/soranoba/henge/v2"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -29,7 +30,8 @@ func TestElectResponsePreset(t *testing.T) {
 	totalElect := 100
 	counts := make(map[string]int)
 	for i := 0; i < totalElect; i++ {
-		preset := ElectResponsePreset(presets[0:len(presets)-1], presets[len(presets)-1])
+		preset, err := ElectResponsePreset(presets, evaler.Args{})
+		assert.NoError(err)
 		if assert.NotNil(preset) {
 			counts[preset.Name] += 1
 		}
@@ -56,7 +58,8 @@ func TestElectResponsePreset_empty_cond(t *testing.T) {
 	presets := []*ResponsePreset{preset}
 	totalElect := 100
 	for i := 0; i < totalElect; i++ {
-		preset := ElectResponsePreset(presets, nil)
+		preset, err := ElectResponsePreset(presets, evaler.Args{})
+		assert.NoError(err)
 		assert.NotNil(preset)
 	}
 }

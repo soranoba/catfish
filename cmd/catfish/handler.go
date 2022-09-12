@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/sirupsen/logrus"
 	"github.com/soranoba/catfish/pkg/config"
+	"github.com/soranoba/catfish/pkg/evaler"
 	"net/http"
 	"net/url"
 	"sync"
@@ -12,14 +13,16 @@ import (
 
 type (
 	HTTPHandler struct {
-		config config.Config
-		mx     sync.Mutex
-		routes []*RouteData
+		config            config.Config
+		mx                sync.Mutex
+		routes            []*RouteData
+		totalRequestCount uint64
 	}
 	RouteData struct {
 		*Route
-		parser  Parser
-		presets []*ResponsePreset
+		parser            Parser
+		presets           []*ResponsePreset
+		routeRequestCount uint64
 	}
 	Context struct {
 		Method     string
@@ -87,15 +90,24 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 
 	h.mx.Lock()
 
-	var param map[string]string
-	var preset *ResponsePreset
-	var routePath string
-	var parser Parser
+	var (
+		param     map[string]string
+		preset    *ResponsePreset
+		routePath string
+		parser    Parser
+		err       error
+	)
+	h.totalRequestCount += 1
+
 	for _, route := range h.routes {
 		if route.IsMatch(req, &param) {
 			routePath = route.path
 			parser = route.parser
-			preset = ElectResponsePreset(route.presets, defaultPreset)
+			route.routeRequestCount += 1
+			preset, err = ElectResponsePreset(route.presets, evaler.Args{
+				"routeRequestCount": route.routeRequestCount,
+				"totalRequestCount": h.totalRequestCount,
+			})
 			break
 		}
 	}
@@ -106,10 +118,16 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 
 	h.mx.Unlock()
 
-	time.Sleep(preset.Delay)
-
 	w.Header().Set("X-CATFISH-PATH", routePath)
 	w.Header().Set("X-CATFISH-RESPONSE-PRESET-NAME", preset.Name)
+
+	if err != nil {
+		logrus.Errorf("Conditional expression failed: %v", err)
+		h.failedWithError(w, err)
+		return
+	}
+
+	time.Sleep(preset.Delay)
 
 	var body map[string]interface{}
 	var parseError error
@@ -126,9 +144,8 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 		ParseError: parseError,
 	}
 	if err := preset.BodyTemplate.Execute(buf, &ctx); err != nil {
-		logrus.Warnf("Template rendering failed: %v", err)
-		w.Header().Set("X-CATFISH-ERROR", err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
+		logrus.Errorf("Template rendering failed: %v", err)
+		h.failedWithError(w, err)
 		return
 	}
 
@@ -138,4 +155,9 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 
 	w.WriteHeader(preset.Status)
 	w.Write(buf.Bytes())
+}
+
+func (h *HTTPHandler) failedWithError(w http.ResponseWriter, err error) {
+	w.Header().Set("X-CATFISH-ERROR", err.Error())
+	w.WriteHeader(http.StatusInternalServerError)
 }
