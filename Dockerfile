@@ -13,6 +13,6 @@ FROM alpine:latest
 
 WORKDIR /app
 COPY --from=builder /app/bin/catfish /bin/catfish
-COPY --from=builder /app/bin/config.yml /etc/cartfish/config.yml
+COPY --from=builder /app/bin/config.yml /etc/catfish/config.yml
 
-ENTRYPOINT ["catfish", "--config", "/etc/cartfish/config.yml"]
+ENTRYPOINT ["catfish", "--config", "/etc/catfish/config.yml"]
