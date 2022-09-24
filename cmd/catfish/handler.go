@@ -2,12 +2,16 @@ package main
 
 import (
 	"bytes"
+	"embed"
 	"encoding/json"
 	"github.com/sirupsen/logrus"
 	"github.com/soranoba/catfish/pkg/config"
 	"github.com/soranoba/catfish/pkg/evaler"
+	"io/fs"
+	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 )
@@ -15,6 +19,7 @@ import (
 type (
 	AdminHTTPHandler struct {
 		*HTTPHandler
+		fileServer http.Handler
 	}
 	HTTPHandler struct {
 		config            config.Config
@@ -35,10 +40,31 @@ type (
 		Body       map[string]interface{}
 		ParseError error
 	}
+
+	Variables struct {
+		GlobalVariables GlobalVariables  `json:"global_variables"`
+		RouteVariables  []RouteVariables `json:"route_variables"`
+	}
+	GlobalVariables struct {
+		TotalRequestCount uint64 `json:"totalRequestCount"`
+	}
+	RouteVariables struct {
+		Route     RouteVariablesKey   `json:"route"`
+		Variables RouteVariablesValue `json:"variables"`
+	}
+	RouteVariablesKey struct {
+		Method string `json:"method"`
+		Path   string `json:"path"`
+	}
+	RouteVariablesValue struct {
+		RouteRequestCount uint64 `json:"routeRequestCount"`
+	}
 )
 
 var (
 	defaultPreset *ResponsePreset
+	//go:embed static/public
+	staticFs embed.FS
 )
 
 func init() {
@@ -84,6 +110,8 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *HTTPHandler) handleAdminRequest(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	if req.Method == http.MethodOptions {
 		h.setCORSResponse(w)
 		return
@@ -95,8 +123,36 @@ func (h *HTTPHandler) handleAdminRequest(w http.ResponseWriter, req *http.Reques
 	switch req.Method {
 	case http.MethodGet:
 		switch req.URL.Path {
-		case "/config":
+		case "/api/config":
 			b, err := json.Marshal(h.config)
+			if err != nil {
+				h.failedWithError(w, err)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write(b)
+			return
+		case "/api/variables":
+			routeVariables := make([]RouteVariables, len(h.routes))
+			for i, route := range h.routes {
+				routeVariables[i] = RouteVariables{
+					Route: RouteVariablesKey{
+						Method: route.method,
+						Path:   route.path,
+					},
+					Variables: RouteVariablesValue{
+						RouteRequestCount: route.routeRequestCount,
+					},
+				}
+			}
+			variables := &Variables{
+				GlobalVariables: GlobalVariables{
+					TotalRequestCount: h.totalRequestCount,
+				},
+				RouteVariables: routeVariables,
+			}
+			b, err := json.Marshal(variables)
 			if err != nil {
 				h.failedWithError(w, err)
 				return
@@ -108,12 +164,13 @@ func (h *HTTPHandler) handleAdminRequest(w http.ResponseWriter, req *http.Reques
 		}
 	case http.MethodPut:
 		switch req.URL.Path {
-		case "/variables/reset":
+		case "/api/variables/reset":
 			h.totalRequestCount = 0
 			for _, route := range h.routes {
 				route.routeRequestCount = 0
 			}
 			w.WriteHeader(http.StatusNoContent)
+			return
 		}
 	}
 
@@ -121,6 +178,8 @@ func (h *HTTPHandler) handleAdminRequest(w http.ResponseWriter, req *http.Reques
 }
 
 func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	if req.Method == http.MethodOptions {
 		h.setCORSResponse(w)
 		return
@@ -196,9 +255,11 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *HTTPHandler) setCORSResponse(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Headers", "*")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Origin,Accept,Content-Type")
+	w.Header().Set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
+	w.Header().Add("Vary", "Origin")
+	w.Header().Add("Vary", "Access-Control-Request-Method")
+	w.Header().Add("Vary", "Access-Control-Request-Headers")
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -208,9 +269,21 @@ func (h *HTTPHandler) failedWithError(w http.ResponseWriter, err error) {
 }
 
 func NewAdminHTTPHandler(h *HTTPHandler) *AdminHTTPHandler {
-	return &AdminHTTPHandler{HTTPHandler: h}
+	dir, err := fs.Sub(staticFs, "static/public")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return &AdminHTTPHandler{
+		HTTPHandler: h,
+		fileServer:  http.FileServer(http.FS(dir)),
+	}
 }
 
 func (h *AdminHTTPHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	h.HTTPHandler.handleAdminRequest(w, req)
+	if strings.HasPrefix(req.URL.Path, "/api/") {
+		h.HTTPHandler.handleAdminRequest(w, req)
+		return
+	}
+	h.fileServer.ServeHTTP(w, req)
 }

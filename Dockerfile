@@ -1,5 +1,9 @@
 FROM golang:1.19 AS builder
 
+RUN apt-get update && \
+    apt-get install -y npm && \
+    apt-get purge -y
+
 WORKDIR /app
 COPY ./go.mod ./
 COPY ./go.sum ./
