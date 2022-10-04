@@ -2,7 +2,15 @@
 -----
 Useful dummy server used for development.
 
-# docker
+## How to run
+### binary
+
+```bash
+make build
+./bin/catfish --config ${YOUR_CONFIG}
+```
+
+### docker
 
 ```bash
 docker build . -t catfish
@@ -79,3 +87,10 @@ Catfish automatically add some headers in responses to easily debug with.
 
 You can use variables, etc with [text/template](https://pkg.go.dev/text/template) format.<br>
 The data passed to the template engine is [main.Context]().
+
+## Management console
+
+Please access the admin port (default is 8081).<br>
+You can see the config, and confirm variables, etc.<br>
+
+If you want to customize it yourself, you can use the admin API.
