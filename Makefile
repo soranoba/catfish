@@ -6,10 +6,14 @@ build:
 	cd cmd/catfish/static && npm ci && npm run build
 	${CMDS} | xargs -I@ go build -ldflags "-X ${CONFIG_PKG}.AppVersion=${VERSION}" -o bin/@ ./cmd/@
 
-release:
-	cd cmd/catfish/static && npm ci && npm run build
-	${CMDS} | CGO_ENABLED=0 GOOS=linux GOARCH=amd64 xargs -I@ \
+release: release-js release-app
+
+release-app:
+	${CMDS} | CGO_ENABLED=0 GOOS=linux xargs -I@ \
 		go build -ldflags "-s -w -X ${CONFIG_PKG}.AppVersion=${VERSION}" -o bin/@ -a ./cmd/@
+
+release-js:
+	cd cmd/catfish/static && npm ci && npm run build
 
 start:
 	cd cmd/catfish/static && npm ci && npm run build
