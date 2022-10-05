@@ -97,7 +97,7 @@ const App = () => {
         </Accordion>
         <h2>Variables</h2>
         <div className="mb-4">
-          <Button variant="danger" size="sm" onClick={resetVariables}>Rest all variables</Button>
+          <Button variant="danger" size="sm" onClick={resetVariables}>Reset all variables</Button>
         </div>
         <h4>Global</h4>
         <Table bordered hover className="mb-4">
