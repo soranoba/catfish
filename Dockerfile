@@ -9,7 +9,8 @@ COPY ./go.mod ./
 COPY ./go.sum ./
 RUN go mod download
 COPY ./ ./
-RUN make release
+ARG GOFLAGS
+RUN GOFLAGS="${GOFLAGS}" make release
 
 #==========================
 
