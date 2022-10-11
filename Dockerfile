@@ -9,8 +9,8 @@ COPY ./go.mod ./
 COPY ./go.sum ./
 RUN go mod download
 COPY ./ ./
-ARG BUILDVCS=true
-RUN make release BUILDVCS=${BUILDVCS}
+ARG GOFLAGS
+RUN GOFLAGS="${GOFLAGS}" make release
 
 #==========================
 
