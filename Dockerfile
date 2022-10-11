@@ -1,23 +1,35 @@
-FROM golang:1.19 AS builder
+FROM node:16 AS js-builder
 
-RUN apt-get update && \
-    apt-get install -y npm && \
-    apt-get purge -y
+WORKDIR /app/cmd/catfish/static
+COPY ./cmd/catfish/static/package.json .
+COPY ./cmd/catfish/static/package-lock.json .
+RUN npm ci
+COPY ./cmd/catfish/static/ .
+WORKDIR /app
+COPY ./Makefile ./
+RUN make build-js
+
+#==========================
+
+FROM golang:1.19 AS app-builder
 
 WORKDIR /app
 COPY ./go.mod ./
 COPY ./go.sum ./
 RUN go mod download
 COPY ./ ./
+COPY --from=js-builder /app/cmd/catfish/static/public ./cmd/catfish/static/
 ARG GOFLAGS
-RUN GOFLAGS="${GOFLAGS}" make release
+ARG GOOS=linux
+ARG GOARCH=amd64
+RUN GOFLAGS="${GOFLAGS}" GOOS="${GOOS}" GOARCH="${GOARCH}" make release-app
 
 #==========================
 
 FROM alpine:latest
 
 WORKDIR /app
-COPY --from=builder /app/bin/catfish /bin/catfish
-COPY --from=builder /app/bin/config.yml /etc/catfish/config.yml
+COPY --from=app-builder /app/bin/catfish /bin/catfish
+COPY --from=app-builder /app/bin/config.yml /etc/catfish/config.yml
 
 ENTRYPOINT ["catfish", "--config", "/etc/catfish/config.yml"]
