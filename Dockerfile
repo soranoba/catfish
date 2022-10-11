@@ -11,7 +11,7 @@ RUN make release-js
 
 #==========================
 
-FROM golang:1.19 AS builder
+FROM golang:1.19 AS app-builder
 
 WORKDIR /app
 COPY ./go.mod ./
@@ -27,7 +27,7 @@ RUN GOFLAGS="${GOFLAGS}" GOARCH="${GOARCH}" make release-app
 FROM alpine:latest
 
 WORKDIR /app
-COPY --from=builder /app/bin/catfish /bin/catfish
-COPY --from=builder /app/bin/config.yml /etc/catfish/config.yml
+COPY --from=app-builder /app/bin/catfish /bin/catfish
+COPY --from=app-builder /app/bin/config.yml /etc/catfish/config.yml
 
 ENTRYPOINT ["catfish", "--config", "/etc/catfish/config.yml"]
