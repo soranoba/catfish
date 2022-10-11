@@ -21,6 +21,10 @@ type (
 	}
 )
 
+func init() {
+	logrus.SetFormatter(&LogFormatter{})
+}
+
 func main() {
 	var opts CmdOpts
 	optsParser := flags.NewParser(&opts, flags.HelpFlag)
@@ -43,20 +47,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetLevel(logrus.InfoLevel)
 
 	var g errgroup.Group
 	g.Go(func() error {
 		srv := &http.Server{
 			Addr:    ":" + henge.ToString(opts.Port),
-			Handler: handler,
+			Handler: Middleware(handler),
 		}
 		return srv.ListenAndServe()
 	})
 	g.Go(func() error {
 		srv := &http.Server{
 			Addr:    ":" + henge.ToString(opts.AdminPort),
-			Handler: NewAdminHTTPHandler(handler),
+			Handler: Middleware(NewAdminHTTPHandler(handler)),
 		}
 		return srv.ListenAndServe()
 	})

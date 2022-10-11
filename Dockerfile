@@ -23,6 +23,7 @@ ARG GOFLAGS
 ARG GOOS=linux
 ARG GOARCH=amd64
 RUN GOFLAGS="${GOFLAGS}" GOOS="${GOOS}" GOARCH="${GOARCH}" make release-app
+
 #==========================
 
 FROM alpine:latest
