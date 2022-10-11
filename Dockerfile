@@ -20,8 +20,9 @@ RUN go mod download
 COPY ./ ./
 COPY --from=js-builder /app/cmd/catfish/static/public ./cmd/catfish/static/
 ARG GOFLAGS
+ARG GOOS=linux
 ARG GOARCH=amd64
-RUN GOFLAGS="${GOFLAGS}" GOARCH="${GOARCH}" make release-app
+RUN GOFLAGS="${GOFLAGS}" GOOS="${GOOS}" GOARCH="${GOARCH}" make release-app
 #==========================
 
 FROM alpine:latest

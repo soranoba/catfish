@@ -2,18 +2,16 @@ VERSION     := $(shell git describe --always --tags --abbrev=10)
 CMDS         = ls -d cmd/* | xargs -I@ basename @
 CONFIG_PKG   = github.com/soranoba/catfish/pkg/config
 
-build:
-	cd cmd/catfish/static && npm ci && npm run build
+build: build-js build-app
+
+build-app:
 	${CMDS} | xargs -I@ go build -ldflags "-X ${CONFIG_PKG}.AppVersion=${VERSION}" -o bin/@ ./cmd/@
 
-release: release-js release-app
-
-release-app:
-	${CMDS} | CGO_ENABLED=0 GOOS=linux xargs -I@ \
-		go build -ldflags "-s -w -X ${CONFIG_PKG}.AppVersion=${VERSION}" -o bin/@ -a ./cmd/@
-
-release-js:
+build-js:
 	cd cmd/catfish/static && npm ci && npm run build
+
+release-app: build-js
+	${CMDS} | xargs -I@ go build -ldflags "-s -w -X ${CONFIG_PKG}.AppVersion=${VERSION}" -o bin/@ -a ./cmd/@
 
 start:
 	cd cmd/catfish/static && npm ci && npm run build
