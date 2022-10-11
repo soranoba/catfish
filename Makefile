@@ -10,7 +10,7 @@ build-app:
 build-js:
 	cd cmd/catfish/static && npm ci && npm run build
 
-release-app: build-js
+release-app:
 	${CMDS} | xargs -I@ go build -ldflags "-s -w -X ${CONFIG_PKG}.AppVersion=${VERSION}" -o bin/@ -a ./cmd/@
 
 start:

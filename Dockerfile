@@ -7,7 +7,7 @@ RUN npm ci
 COPY ./cmd/catfish/static/ .
 WORKDIR /app
 COPY ./Makefile ./
-RUN make release-js
+RUN make build-js
 
 #==========================
 
