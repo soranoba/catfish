@@ -18,7 +18,7 @@ COPY ./go.mod ./
 COPY ./go.sum ./
 RUN go mod download
 COPY ./ ./
-COPY --from=js-builder /app/cmd/catfish/static/public ./cmd/catfish/static/
+COPY --from=js-builder /app/cmd/catfish/static/public ./cmd/catfish/static/public
 ARG GOFLAGS
 ARG GOOS=linux
 ARG GOARCH=amd64
