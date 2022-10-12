@@ -22,7 +22,8 @@ COPY --from=js-builder /app/cmd/catfish/static/public ./cmd/catfish/static/
 ARG GOFLAGS
 ARG GOOS=linux
 ARG GOARCH=amd64
-RUN GOFLAGS="${GOFLAGS}" GOOS="${GOOS}" GOARCH="${GOARCH}" make release-app
+ARG CGO_ENABLED=0
+RUN GOFLAGS="${GOFLAGS}" GOOS="${GOOS}" GOARCH="${GOARCH}" CGO_ENABLED=${CGO_ENABLED} make release-app
 
 #==========================
 
