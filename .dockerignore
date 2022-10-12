@@ -1,1 +1,2 @@
 ./cmd/catfish/static/node_modules
+./Dockerfile
