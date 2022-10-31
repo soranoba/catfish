@@ -1,4 +1,4 @@
-FROM node:16 AS js-builder
+FROM --platform=$BUILDPLATFORM node:16 AS js-builder
 
 WORKDIR /app/cmd/catfish/static
 COPY ./cmd/catfish/static/package.json .
