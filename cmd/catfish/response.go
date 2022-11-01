@@ -40,7 +40,7 @@ func ElectResponsePreset(presets []*ResponsePreset, args evaler.Params) (*Respon
 	val := rand.Float64()
 
 	for _, preset := range presets {
-		// NOTE: default is always match.
+		// NOTE: Default always matches.
 		if preset.Condition == nil {
 			return preset, nil
 		}
