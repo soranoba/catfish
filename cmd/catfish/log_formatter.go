@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"strings"
-	"time"
 )
 
 type (
@@ -24,7 +23,7 @@ func (f *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	jsonEntry := &logEntryJson{
 		Type:    "default",
 		Level:   entry.Level.String(),
-		Time:    entry.Time.Format(time.RFC3339),
+		Time:    entry.Time.Format("2006-01-02T15:04:05.999Z07:00"),
 		Message: entry.Message,
 	}
 
