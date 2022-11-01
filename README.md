@@ -13,8 +13,8 @@ make build
 ### docker
 
 ```bash
-docker build . -t catfish
-docker run -p 8080:8080 -p 8081:8081 -v ${YOUR_CONFIG}:/etc/catfish/config.yml catfish
+docker pull ghcr.io/soranoba/catfish
+docker run -p 8080:8080 -p 8081:8081 -v ${YOUR_CONFIG}:/etc/catfish/config.yml soranoba/catfish
 ```
 
 ## Specification
