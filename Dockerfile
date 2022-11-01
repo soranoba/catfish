@@ -1,4 +1,4 @@
-FROM node:16 AS js-builder
+FROM --platform=$BUILDPLATFORM node:16 AS js-builder
 
 WORKDIR /app/cmd/catfish/static
 COPY ./cmd/catfish/static/package.json .
@@ -11,7 +11,7 @@ RUN make build-js
 
 #==========================
 
-FROM golang:1.19 AS app-builder
+FROM --platform=$BUILDPLATFORM golang:1.19 AS app-builder
 
 WORKDIR /app
 COPY ./go.mod ./
@@ -19,11 +19,13 @@ COPY ./go.sum ./
 RUN go mod download
 COPY ./ ./
 COPY --from=js-builder /app/cmd/catfish/static/public ./cmd/catfish/static/public
+
+ARG TARGETPLATFORM
+RUN echo "building for $TARGETPLATFORM"
+
 ARG GOFLAGS
-ARG GOOS=linux
-ARG GOARCH=amd64
 ARG CGO_ENABLED=0
-RUN GOFLAGS="${GOFLAGS}" GOOS="${GOOS}" GOARCH="${GOARCH}" CGO_ENABLED=${CGO_ENABLED} make release-app
+RUN GOFLAGS="${GOFLAGS}" CGO_ENABLED=${CGO_ENABLED} make release-app
 
 #==========================
 
