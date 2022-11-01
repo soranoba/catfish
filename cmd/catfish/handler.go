@@ -201,9 +201,11 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 			routePath = route.path
 			parser = route.parser
 			route.routeRequestCount += 1
-			preset, err = ElectResponsePreset(route.presets, evaler.Args{
+			preset, err = ElectResponsePreset(route.presets, evaler.Params{
 				"routeRequestCount": route.routeRequestCount,
 				"totalRequestCount": h.totalRequestCount,
+				"param":             param,
+				"query":             req.URL.Query(),
 			})
 			break
 		}

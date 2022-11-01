@@ -1,0 +1,14 @@
+routes:
+  - method: GET
+    path: /users/:id
+    parser: json
+    response:
+      - name: 500
+        cond: "x x"
+        status: 500
+        header:
+          Content-Type: application/json
+        body: >
+          {
+            "message": "Internal Server Error"
+          }

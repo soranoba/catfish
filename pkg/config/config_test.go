@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
 	"testing"
@@ -15,63 +16,71 @@ func TestLoadYamlFile(t *testing.T) {
 
 	conf, err := LoadYamlFile(filepath.Join(dir, "testdata/config1.yml"))
 	assert.NoError(err)
-	assert.Equal(Config{
-		Routes: []Route{
-			{
-				Method:     "GET",
-				Path:       "/users/:id",
-				ParserName: "json",
-				Response: []Response{
-					{
-						Name:      "200",
-						Condition: "0.8",
-						Delay:     0.1,
-						Status:    200,
-						Header: map[string]string{
-							"Content-Type": "application/json",
-						},
-						Body: "{\n  \"id\": 1,\n  \"name\": \"Alice\"\n}\n",
-					},
-					{
-						Name:      "500",
-						Condition: "1.0",
-						Status:    500,
-						Header: map[string]string{
-							"Content-Type": "application/json",
-						},
-						Body: "{\n  \"message\": \"Internal Server Error\"\n}\n",
-					},
-				},
-			},
-			{
-				Method: "POST",
-				Path:   "/users",
-				Response: []Response{
-					{
-						Name:      "401",
-						Condition: "true",
-						Status:    401,
-						Header: map[string]string{
-							"Content-Type": "application/json",
-						},
-						Body: "{\n  \"message\": \"Unauthorized\"\n}\n",
-					},
-				},
-			},
-			{
-				Method: "*",
-				Path:   "*",
-				Response: []Response{
-					{
-						Name:   "default",
-						Status: 404,
-						Header: map[string]string{
-							"Content-Type": "application/json",
-						},
-						Body: "{\n  \"message\": \"Not Found\"\n}\n",
-					},
-				},
-			},
-		},
-	}, *conf)
+	data, err := yaml.Marshal(conf)
+	assert.NoError(err)
+	assert.Equal(`routes:
+    - method: GET
+      path: /users/:id
+      parser: json
+      response:
+        - name: "200"
+          cond: "0.8"
+          delay: 0.1
+          status: 200
+          header:
+            Content-Type: application/json
+          body: |
+            {
+              "id": 1,
+              "name": "Alice"
+            }
+        - name: "500"
+          cond: "1.0"
+          delay: 0
+          status: 500
+          header:
+            Content-Type: application/json
+          body: |
+            {
+              "message": "Internal Server Error"
+            }
+    - method: POST
+      path: /users
+      parser: ""
+      response:
+        - name: "401"
+          cond: "true"
+          delay: 0
+          status: 401
+          header:
+            Content-Type: application/json
+          body: |
+            {
+              "message": "Unauthorized"
+            }
+    - method: '*'
+      path: '*'
+      parser: ""
+      response:
+        - name: default
+          cond: null
+          delay: 0
+          status: 404
+          header:
+            Content-Type: application/json
+          body: |
+            {
+              "message": "Not Found"
+            }
+`, string(data))
+}
+
+func TestLoadYamlFile_invalidCond(t *testing.T) {
+	assert := assert.New(t)
+
+	dir, err := os.Getwd()
+	assert.NoError(err)
+
+	_, err = LoadYamlFile(filepath.Join(dir, "testdata/config2.yml"))
+	assert.EqualError(err, "parsing error: x x\t:1:3 - 1:4 unexpected Ident while scanning operator")
 }
