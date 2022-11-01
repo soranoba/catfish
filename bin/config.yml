@@ -12,7 +12,7 @@ routes:
             "message": "Warn up now.... Please wait."
           }
       - name: 200
-        cond: 0.8
+        cond: param["id"] < 100
         delay: 0.0
         status: 200
         header:
@@ -22,14 +22,13 @@ routes:
             "id": {{ .Param.id }},
             "name": "Alice"
           }
-      - name: 500
-        cond: 1.0
-        status: 500
+      - name: 404
+        status: 404
         header:
           Content-Type: application/json
         body: >
           {
-            "message": "Internal Server Error"
+            "message": "Not Found"
           }
   - method: POST
     path: /users

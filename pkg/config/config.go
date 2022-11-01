@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/soranoba/catfish/pkg/evaler"
 	"github.com/soranoba/catfish/pkg/validator"
 	"gopkg.in/yaml.v3"
 	"os"
@@ -18,7 +19,7 @@ type (
 	}
 	Response struct {
 		Name      string            `yaml:"name" json:"name"`
-		Condition string            `yaml:"cond" json:"cond"`
+		Condition *evaler.Expr      `yaml:"cond" json:"cond"`
 		Delay     float64           `yaml:"delay" json:"delay"`
 		Status    int               `yaml:"status" json:"status" validate:"min=100,max=599"`
 		Header    map[string]string `yaml:"header" json:"header"`

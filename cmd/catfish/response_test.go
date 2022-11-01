@@ -15,7 +15,7 @@ func TestElectResponsePreset(t *testing.T) {
 	for i, _ := range responses {
 		responses[i] = &config.Response{
 			Name:      henge.ToString(i),
-			Condition: "0.2",
+			Condition: evaler.MustCompile("0.2"),
 			Status:    200 + i,
 		}
 	}
@@ -31,7 +31,7 @@ func TestElectResponsePreset(t *testing.T) {
 	totalElect := 100
 	counts := make(map[string]int)
 	for i := 0; i < totalElect; i++ {
-		preset, err := ElectResponsePreset(presets, evaler.Args{})
+		preset, err := ElectResponsePreset(presets, evaler.Params{})
 		assert.NoError(err)
 		if assert.NotNil(preset) {
 			counts[preset.Name] += 1
@@ -60,7 +60,7 @@ func TestElectResponsePreset_empty_cond(t *testing.T) {
 	presets := []*ResponsePreset{preset}
 	totalElect := 100
 	for i := 0; i < totalElect; i++ {
-		preset, err := ElectResponsePreset(presets, evaler.Args{})
+		preset, err := ElectResponsePreset(presets, evaler.Params{})
 		assert.NoError(err)
 		assert.NotNil(preset)
 	}

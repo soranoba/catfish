@@ -11,7 +11,7 @@ import (
 type (
 	ResponsePreset struct {
 		Name         string
-		Condition    string
+		Condition    *evaler.Expr
 		Delay        time.Duration
 		Status       int
 		Header       map[string]string
@@ -25,14 +25,9 @@ func NewResponsePreset(res *config.Response) (*ResponsePreset, error) {
 		return nil, err
 	}
 
-	cond := res.Condition
-	if cond == "" {
-		cond = "1.0"
-	}
-
 	return &ResponsePreset{
 		Name:         res.Name,
-		Condition:    cond,
+		Condition:    res.Condition,
 		Delay:        time.Duration(res.Delay * 1000_000_000),
 		Status:       res.Status,
 		Header:       res.Header,
@@ -40,13 +35,17 @@ func NewResponsePreset(res *config.Response) (*ResponsePreset, error) {
 	}, nil
 }
 
-func ElectResponsePreset(presets []*ResponsePreset, args evaler.Args) (*ResponsePreset, error) {
+func ElectResponsePreset(presets []*ResponsePreset, args evaler.Params) (*ResponsePreset, error) {
 	amountScore := float64(0)
 	val := rand.Float64()
 
-	evaler := evaler.New()
 	for _, preset := range presets {
-		score, err := evaler.Eval(preset.Condition, args)
+		// NOTE: default is always match.
+		if preset.Condition == nil {
+			return preset, nil
+		}
+
+		score, err := preset.Condition.Eval(args)
 		if err != nil {
 			return nil, err
 		}
