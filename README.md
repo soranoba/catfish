@@ -60,6 +60,8 @@ If the formula returns Boolean value, it means 1.0 or 0.0.
 |:------------------|:-----------------------------------------------------------------------------------|
 | routeRequestCount | Number of requests for the route. On the first request for route, this value is 1. |
 | totalRequestCount | Total number of requests. On the first request, this value is 1.                   |
+| param             | Path parameters. It can access using `param["name"]`.                              |
+| query             | Query parameters. It can access using `query["name"][0]`. See also url.Values.     |
 
 ### Path parameters
 
