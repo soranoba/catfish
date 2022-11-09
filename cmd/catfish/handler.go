@@ -228,6 +228,11 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 
 	time.Sleep(preset.Delay)
 
+	if preset.Redirect != nil {
+		http.Redirect(w, req, *preset.Redirect, preset.Status)
+		return
+	}
+
 	var body map[string]interface{}
 	var parseError error
 	if parser != nil {
