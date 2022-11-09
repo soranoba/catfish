@@ -26,6 +26,7 @@ func TestLoadYamlFile(t *testing.T) {
         - name: "200"
           cond: "0.8"
           delay: 0.1
+          redirect: null
           status: 200
           header:
             Content-Type: application/json
@@ -37,6 +38,7 @@ func TestLoadYamlFile(t *testing.T) {
         - name: "500"
           cond: "1.0"
           delay: 0
+          redirect: null
           status: 500
           header:
             Content-Type: application/json
@@ -51,6 +53,7 @@ func TestLoadYamlFile(t *testing.T) {
         - name: "401"
           cond: "true"
           delay: 0
+          redirect: null
           status: 401
           header:
             Content-Type: application/json
@@ -59,12 +62,24 @@ func TestLoadYamlFile(t *testing.T) {
               "message": "Unauthorized"
             }
     - method: '*'
+      path: /company
+      parser: ""
+      response:
+        - name: company
+          cond: null
+          delay: 0
+          redirect: https://soranoba.net
+          status: 302
+          header: {}
+          body: ""
+    - method: '*'
       path: '*'
       parser: ""
       response:
         - name: default
           cond: null
           delay: 0
+          redirect: null
           status: 404
           header:
             Content-Type: application/json

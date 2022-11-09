@@ -14,6 +14,7 @@ type (
 		Condition    *evaler.Expr
 		Delay        time.Duration
 		Status       int
+		Redirect     *string
 		Header       map[string]string
 		BodyTemplate *template.Template
 	}
@@ -30,6 +31,7 @@ func NewResponsePreset(res *config.Response) (*ResponsePreset, error) {
 		Condition:    res.Condition,
 		Delay:        time.Duration(res.Delay * 1000_000_000),
 		Status:       res.Status,
+		Redirect:     res.Redirect,
 		Header:       res.Header,
 		BodyTemplate: tpl,
 	}, nil

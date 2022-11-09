@@ -36,6 +36,12 @@ routes:
             "message": "Unauthorized"
           }
   - method: "*"
+    path: /company
+    response:
+      - name: company
+        status: 302
+        redirect: https://soranoba.net
+  - method: "*"
     path: "*"
     response:
       - name: default

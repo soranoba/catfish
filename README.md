@@ -39,14 +39,15 @@ docker run -p 8080:8080 -p 8081:8081 -v ${YOUR_CONFIG}:/etc/catfish/config.yml s
 
 #### Response
 
-| Field  | Type                        | Required | Example                 | Description                                                                   |
-|:-------|:----------------------------|:---------|:------------------------|:------------------------------------------------------------------------------|
-| name   | `String`                    | x        | `Success`               | Response preset name                                                          |
-| cond   | `String`                    | x        | `totalRequestCount < 2` | Conditional expression indicating the probability of returning this response. |
-| delay  | `Float`                     | x        | `0.1`                   | Delay time before response is returned. (sec)                                 |
-| status | `Integer`                   | o        | `200`                   | HTTP Status code                                                              |
-| header | `Dictionary<String,String>` | x        |                         | HTTP response headers                                                         |
-| body   | `String`                    | x        | `{"message":"OK"}`      | HTTP response body                                                            |
+| Field    | Type                        | Required | Example                 | Description                                                                   |
+|:---------|:----------------------------|:---------|:------------------------|:------------------------------------------------------------------------------|
+| name     | `String`                    | x        | `Success`               | Response preset name                                                          |
+| cond     | `String`                    | x        | `totalRequestCount < 2` | Conditional expression indicating the probability of returning this response. |
+| delay    | `Float`                     | x        | `0.1`                   | Delay time before response is returned. (sec)                                 |
+| status   | `Integer`                   | o        | `200`                   | HTTP Status code                                                              |
+| redirect | `String`                    | x        | `https://soranoba.net`  | A redirect to url. The `status` SHOULD be specified in the 3xx range.         |
+| header   | `Dictionary<String,String>` | x        |                         | HTTP response headers                                                         |
+| body     | `String`                    | x        | `{"message":"OK"}`      | HTTP response body                                                            |
 
 ### Condition expression
 

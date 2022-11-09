@@ -21,6 +21,7 @@ type (
 		Name      string            `yaml:"name" json:"name"`
 		Condition *evaler.Expr      `yaml:"cond" json:"cond"`
 		Delay     float64           `yaml:"delay" json:"delay"`
+		Redirect  *string           `yaml:"redirect" json:"redirect"`
 		Status    int               `yaml:"status" json:"status" validate:"min=100,max=599"`
 		Header    map[string]string `yaml:"header" json:"header"`
 		Body      string            `yaml:"body" json:"body"`
