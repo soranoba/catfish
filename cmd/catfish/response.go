@@ -14,7 +14,7 @@ type (
 		Condition    *evaler.Expr
 		Delay        time.Duration
 		Status       int
-		Redirect     *string
+		Redirect     *config.URL
 		Header       map[string]string
 		BodyTemplate *template.Template
 	}

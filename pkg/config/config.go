@@ -4,6 +4,7 @@ import (
 	"github.com/soranoba/catfish/pkg/evaler"
 	"github.com/soranoba/catfish/pkg/validator"
 	"gopkg.in/yaml.v3"
+	"net/url"
 	"os"
 )
 
@@ -21,10 +22,13 @@ type (
 		Name      string            `yaml:"name" json:"name"`
 		Condition *evaler.Expr      `yaml:"cond" json:"cond"`
 		Delay     float64           `yaml:"delay" json:"delay"`
-		Redirect  *string           `yaml:"redirect" json:"redirect"`
+		Redirect  *URL              `yaml:"redirect" json:"redirect"`
 		Status    int               `yaml:"status" json:"status" validate:"min=100,max=599"`
 		Header    map[string]string `yaml:"header" json:"header"`
 		Body      string            `yaml:"body" json:"body"`
+	}
+	URL struct {
+		url.URL
 	}
 )
 
@@ -47,4 +51,22 @@ func LoadYamlFile(filepath string) (*Config, error) {
 	}
 
 	return &conf, nil
+}
+
+func (u *URL) UnmarshalText(s []byte) error {
+	if len(s) == 0 {
+		return nil
+	}
+
+	url, err := url.Parse(string(s))
+	if err != nil {
+		return err
+	}
+
+	*u = URL{URL: *url}
+	return nil
+}
+
+func (u URL) MarshalText() ([]byte, error) {
+	return []byte(u.String()), nil
 }

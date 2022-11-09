@@ -229,7 +229,9 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 	time.Sleep(preset.Delay)
 
 	if preset.Redirect != nil {
-		http.Redirect(w, req, *preset.Redirect, preset.Status)
+		u := preset.Redirect
+		u.RawQuery = req.URL.RawQuery
+		http.Redirect(w, req, u.String(), preset.Status)
 		return
 	}
 
