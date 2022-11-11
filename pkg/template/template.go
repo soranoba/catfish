@@ -38,10 +38,17 @@ func Compile(text string) (*Template, error) {
 }
 
 func (t *Template) Execute(w io.Writer, data interface{}) error {
+	if t == nil {
+		return nil
+	}
 	return t.t.Execute(w, data)
 }
 
 func (t *Template) Render(data interface{}) (string, error) {
+	if t == nil {
+		return "", nil
+	}
+
 	buf := new(bytes.Buffer)
 	if err := t.t.Execute(buf, data); err != nil {
 		return "", err
@@ -50,10 +57,6 @@ func (t *Template) Render(data interface{}) (string, error) {
 }
 
 func (t *Template) UnmarshalText(s []byte) error {
-	if len(s) == 0 {
-		return nil
-	}
-
 	raw := string(s)
 	template, _ := compile(raw)
 	*t = Template{

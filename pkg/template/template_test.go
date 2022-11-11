@@ -26,6 +26,15 @@ func TestTemplate_Render(t *testing.T) {
 	assert.Equal("{\n  \"id\": 1,\n  \"name\": \"Alice\",\n  \"param\": \"A\"\n}", val)
 }
 
+func TestTemplate_Render_nil(t *testing.T) {
+	assert := assert.New(t)
+
+	var tpl *Template
+	val, err := tpl.Render(nil)
+	assert.Equal("", val)
+	assert.NoError(err)
+}
+
 func TestTemplate_UnmarshalText(t *testing.T) {
 	assert := assert.New(t)
 	tpl := Template{}
