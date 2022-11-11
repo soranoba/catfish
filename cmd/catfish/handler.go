@@ -10,7 +10,6 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
-	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -32,13 +31,6 @@ type (
 		parser            Parser
 		presets           []*ResponsePreset
 		routeRequestCount uint64
-	}
-	Context struct {
-		Method     string
-		URL        *url.URL
-		Param      map[string]string
-		Body       map[string]interface{}
-		ParseError error
 	}
 
 	Variables struct {
