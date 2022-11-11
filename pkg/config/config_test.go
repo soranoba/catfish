@@ -14,7 +14,7 @@ func TestLoadYamlFile(t *testing.T) {
 	dir, err := os.Getwd()
 	assert.NoError(err)
 
-	conf, err := LoadYamlFile(filepath.Join(dir, "testdata/config1.yml"))
+	conf, err := LoadYamlFile(filepath.Join(dir, "testdata/config.yml"))
 	assert.NoError(err)
 	data, err := yaml.Marshal(conf)
 	assert.NoError(err)
@@ -71,7 +71,7 @@ func TestLoadYamlFile(t *testing.T) {
           redirect: https://soranoba.net
           status: 302
           header: {}
-          body: ""
+          body: null
     - method: '*'
       path: '*'
       parser: ""
@@ -90,12 +90,53 @@ func TestLoadYamlFile(t *testing.T) {
 `, string(data))
 }
 
+func TestLoadYamlFile_invalidYaml(t *testing.T) {
+	assert := assert.New(t)
+
+	dir, err := os.Getwd()
+	assert.NoError(err)
+
+	_, err = LoadYamlFile(filepath.Join(dir, "testdata/invalid_yaml.yml"))
+	assert.EqualError(err, "yaml: unmarshal errors:\n  line 1: cannot unmarshal !!seq into config.Config")
+}
+
+func TestLoadYamlFile_invalidType(t *testing.T) {
+	assert := assert.New(t)
+
+	dir, err := os.Getwd()
+	assert.NoError(err)
+
+	_, err = LoadYamlFile(filepath.Join(dir, "testdata/invalid_type.yml"))
+	assert.EqualError(err, "yaml: unmarshal errors:\n  line 5: cannot unmarshal !!str `Interna...` into int")
+}
+
+func TestLoadYamlFile_invalidValidation(t *testing.T) {
+	assert := assert.New(t)
+
+	dir, err := os.Getwd()
+	assert.NoError(err)
+
+	_, err = LoadYamlFile(filepath.Join(dir, "testdata/invalid_validation.yml"))
+	assert.EqualError(err, `(inclusion) .Routes[0].Method is not included in [GET POST PUT DELETE *]
+(lte) .Routes[0].Response[0].Status must be less than or equal to 599`)
+}
+
 func TestLoadYamlFile_invalidCond(t *testing.T) {
 	assert := assert.New(t)
 
 	dir, err := os.Getwd()
 	assert.NoError(err)
 
-	_, err = LoadYamlFile(filepath.Join(dir, "testdata/config2.yml"))
-	assert.EqualError(err, "parsing error: x x\t:1:3 - 1:4 unexpected Ident while scanning operator")
+	_, err = LoadYamlFile(filepath.Join(dir, "testdata/invalid_cond.yml"))
+	assert.EqualError(err, "(custom) .Routes[0].Response[0].Condition bad expression: 'x x'")
+}
+
+func TestLoadYamlFile_invalidBody(t *testing.T) {
+	assert := assert.New(t)
+
+	dir, err := os.Getwd()
+	assert.NoError(err)
+
+	_, err = LoadYamlFile(filepath.Join(dir, "testdata/invalid_body.yml"))
+	assert.EqualError(err, "(custom) .Routes[0].Response[0].Body template: :1: function \"ifif\" not defined")
 }

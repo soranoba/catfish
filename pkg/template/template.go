@@ -8,7 +8,8 @@ import (
 
 type (
 	Template struct {
-		t *template.Template
+		t   *template.Template
+		raw string
 	}
 )
 
@@ -16,14 +17,23 @@ var (
 	funcmap = template.FuncMap{}
 )
 
-func New(text string) (*Template, error) {
-	t, err := template.New("").Funcs(funcmap).Parse(text)
+func MustCompile(text string) *Template {
+	t, err := Compile(text)
+	if err != nil {
+		panic(err)
+	}
+	return t
+}
+
+func Compile(text string) (*Template, error) {
+	t, err := compile(text)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Template{
-		t: t,
+		t:   t,
+		raw: text,
 	}, nil
 }
 
@@ -37,4 +47,41 @@ func (t *Template) Render(data interface{}) (string, error) {
 		return "", err
 	}
 	return buf.String(), nil
+}
+
+func (t *Template) UnmarshalText(s []byte) error {
+	if len(s) == 0 {
+		return nil
+	}
+
+	raw := string(s)
+	template, _ := compile(raw)
+	*t = Template{
+		t:   template,
+		raw: raw,
+	}
+	return nil
+}
+
+func (t Template) MarshalText() ([]byte, error) {
+	return []byte(t.String()), nil
+}
+
+func (t *Template) Validate() error {
+	if t == nil {
+		return nil
+	}
+
+	if _, err := compile(t.raw); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (t *Template) String() string {
+	return t.raw
+}
+
+func compile(text string) (*template.Template, error) {
+	return template.New("").Funcs(funcmap).Parse(text)
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/soranoba/catfish/pkg/config"
 	"github.com/soranoba/catfish/pkg/evaler"
+	"github.com/soranoba/catfish/pkg/template"
 	"io/fs"
 	"log"
 	"net/http"
@@ -60,35 +61,25 @@ var (
 )
 
 func init() {
-	defaultPreset, _ = NewResponsePreset(&config.Response{
+	defaultPreset = NewResponsePreset(&config.Response{
 		Status: 404,
-		Body:   "Not Found\n",
+		Body:   template.MustCompile("Not Found\n"),
 	})
 }
 
 func NewHTTPHandler(conf *config.Config) (*HTTPHandler, error) {
-	errors := make([]error, 0)
 	routes := make([]*RouteData, 0)
 
 	for i, route := range conf.Routes {
 		var presets []*ResponsePreset
 		for _, res := range conf.Routes[i].Response {
-			preset, err := NewResponsePreset(&res)
-			if err != nil {
-				errors = append(errors, err)
-			} else {
-				presets = append(presets, preset)
-			}
+			presets = append(presets, NewResponsePreset(&res))
 		}
 		routes = append(routes, &RouteData{
 			Route:   NewRoute(route.Method, route.Path),
 			parser:  NewParserWithName(route.ParserName),
 			presets: presets,
 		})
-	}
-
-	if len(errors) > 0 {
-		logrus.Error(errors)
 	}
 
 	return &HTTPHandler{
