@@ -25,21 +25,7 @@ func MustCompile(expr string) *Expr {
 }
 
 func Compile(expr string) (*Expr, error) {
-	expression, err := gval.Full(
-		gval.Function("atoi", func(args ...interface{}) (interface{}, error) {
-			if len(args) != 1 {
-				return nil, errors.New("expected exactly 1 argument")
-			}
-			if str, ok := args[0].(string); ok {
-				val, err := strconv.Atoi(str)
-				if err != nil {
-					return nil, err
-				}
-				return float64(val), nil
-			}
-			return nil, errors.New("expected string")
-		}),
-	).NewEvaluable(expr)
+	expression, err := compile(expr)
 	if err != nil {
 		return nil, err
 	}
@@ -78,12 +64,12 @@ func (expr *Expr) UnmarshalText(s []byte) error {
 		return nil
 	}
 
-	e, err := Compile(string(s))
-	if err != nil {
-		return err
+	raw := string(s)
+	expression, _ := compile(raw)
+	*expr = Expr{
+		expression: expression,
+		raw:        raw,
 	}
-
-	*expr = *e
 	return nil
 }
 
@@ -91,6 +77,35 @@ func (expr Expr) MarshalText() ([]byte, error) {
 	return []byte(expr.String()), nil
 }
 
+func (expr *Expr) Validate() error {
+	if expr == nil {
+		return nil
+	}
+
+	if _, err := compile(expr.raw); err != nil {
+		return fmt.Errorf("bad expression: '%s'", expr.raw)
+	}
+	return nil
+}
+
 func (expr *Expr) String() string {
 	return expr.raw
+}
+
+func compile(expr string) (gval.Evaluable, error) {
+	return gval.Full(
+		gval.Function("atoi", func(args ...interface{}) (interface{}, error) {
+			if len(args) != 1 {
+				return nil, errors.New("expected exactly 1 argument")
+			}
+			if str, ok := args[0].(string); ok {
+				val, err := strconv.Atoi(str)
+				if err != nil {
+					return nil, err
+				}
+				return float64(val), nil
+			}
+			return nil, errors.New("expected string")
+		}),
+	).NewEvaluable(expr)
 }

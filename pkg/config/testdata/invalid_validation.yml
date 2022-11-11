@@ -1,0 +1,11 @@
+routes:
+  - method: method
+    path: /users/:id
+    parser: json
+    response:
+      - name: 500
+        status: 900
+        body: >
+          {
+            "message": "Internal Server Error"
+          }

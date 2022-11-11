@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/soranoba/catfish/pkg/evaler"
+	"github.com/soranoba/catfish/pkg/template"
 	"github.com/soranoba/catfish/pkg/validator"
 	"gopkg.in/yaml.v3"
 	"net/url"
@@ -19,13 +20,13 @@ type (
 		Response   []Response `yaml:"response" json:"response" required:"true" validate:"min=1"`
 	}
 	Response struct {
-		Name      string            `yaml:"name" json:"name"`
-		Condition *evaler.Expr      `yaml:"cond" json:"cond"`
-		Delay     float64           `yaml:"delay" json:"delay"`
-		Redirect  *URL              `yaml:"redirect" json:"redirect"`
-		Status    int               `yaml:"status" json:"status" validate:"min=100,max=599"`
-		Header    map[string]string `yaml:"header" json:"header"`
-		Body      string            `yaml:"body" json:"body"`
+		Name      string             `yaml:"name" json:"name"`
+		Condition *evaler.Expr       `yaml:"cond" json:"cond"`
+		Delay     float64            `yaml:"delay" json:"delay"`
+		Redirect  *URL               `yaml:"redirect" json:"redirect"`
+		Status    int                `yaml:"status" json:"status" validate:"min=100,max=599"`
+		Header    map[string]string  `yaml:"header" json:"header"`
+		Body      *template.Template `yaml:"body" json:"body"`
 	}
 	URL struct {
 		url.URL
@@ -42,7 +43,7 @@ func LoadYamlFile(filepath string) (*Config, error) {
 	var conf Config
 	dec := yaml.NewDecoder(f)
 	if err := dec.Decode(&conf); err != nil {
-		return &conf, err
+		return nil, err
 	}
 
 	v := validator.NewValidator()

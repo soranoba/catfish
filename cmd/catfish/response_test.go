@@ -22,10 +22,7 @@ func TestElectResponsePreset(t *testing.T) {
 
 	var presets []*ResponsePreset
 	for _, res := range responses {
-		preset, err := NewResponsePreset(res)
-		if assert.NoError(err) {
-			presets = append(presets, preset)
-		}
+		presets = append(presets, NewResponsePreset(res))
 	}
 
 	totalElect := 100
@@ -49,13 +46,10 @@ func TestElectResponsePreset(t *testing.T) {
 func TestElectResponsePreset_empty_cond(t *testing.T) {
 	assert := assert.New(t)
 
-	preset, err := NewResponsePreset(&config.Response{
+	preset := NewResponsePreset(&config.Response{
 		Name:   "200",
 		Status: 200,
 	})
-	if !assert.NoError(err) {
-		return
-	}
 
 	presets := []*ResponsePreset{preset}
 	totalElect := 100

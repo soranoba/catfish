@@ -20,12 +20,7 @@ type (
 	}
 )
 
-func NewResponsePreset(res *config.Response) (*ResponsePreset, error) {
-	tpl, err := template.New(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
+func NewResponsePreset(res *config.Response) *ResponsePreset {
 	return &ResponsePreset{
 		Name:         res.Name,
 		Condition:    res.Condition,
@@ -33,8 +28,8 @@ func NewResponsePreset(res *config.Response) (*ResponsePreset, error) {
 		Status:       res.Status,
 		Redirect:     res.Redirect,
 		Header:       res.Header,
-		BodyTemplate: tpl,
-	}, nil
+		BodyTemplate: res.Body,
+	}
 }
 
 func ElectResponsePreset(presets []*ResponsePreset, args evaler.Params) (*ResponsePreset, error) {

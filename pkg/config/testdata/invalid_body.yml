@@ -1,0 +1,9 @@
+routes:
+  - method: GET
+    path: /users/:id
+    parser: json
+    response:
+      - name: 200
+        status: 200
+        body: >
+          {{ ifif .Name }}{{ end }}

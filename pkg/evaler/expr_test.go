@@ -1,6 +1,7 @@
 package evaler
 
 import (
+	"github.com/soranoba/valis"
 	"github.com/stretchr/testify/assert"
 	"net/url"
 	"testing"
@@ -67,8 +68,10 @@ func TestExpr_Eval_atoi(t *testing.T) {
 func TestExpr_UnmarshalText(t *testing.T) {
 	assert := assert.New(t)
 	expr := Expr{}
-	assert.Error(expr.UnmarshalText([]byte(".")))
+	assert.NoError(expr.UnmarshalText([]byte(".")))
+	assert.Error(expr.Validate())
 	assert.NoError(expr.UnmarshalText([]byte("x + 1")))
+	assert.NoError(expr.Validate())
 
 	val, err := expr.Eval(Params{"x": 2})
 	assert.Equal(3.0, val)
@@ -81,4 +84,17 @@ func TestExpr_MarshalText(t *testing.T) {
 	val, err := expr.MarshalText()
 	assert.NoError(err)
 	assert.Equal("x + 1", string(val))
+}
+
+func TestExpr_Validate(t *testing.T) {
+	var _ valis.Validatable = &Expr{}
+
+	assert := assert.New(t)
+
+	var expr Expr
+	assert.NoError(expr.UnmarshalText([]byte("x x x")))
+	assert.EqualError(
+		expr.Validate(),
+		"bad expression: 'x x x'",
+	)
 }
