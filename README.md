@@ -89,7 +89,7 @@ Catfish automatically add some headers in responses to easily debug with.
 ### Response body
 
 You can use variables, etc with [text/template](https://pkg.go.dev/text/template) format.<br>
-The data passed to the template engine is [main.Context]().
+The data passed to the template engine is [main.Context](/cmd/catfish/context.go).
 
 ## Management console
 
