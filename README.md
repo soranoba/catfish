@@ -63,6 +63,7 @@ If the formula returns Boolean value, it means 1.0 or 0.0.
 | totalRequestCount | Total number of requests. On the first request, this value is 1.                   |
 | param             | Path parameters. It can access using `param["name"]`.                              |
 | query             | Query parameters. It can access using `query["name"][0]`. See also url.Values.     |
+| header            | Headers. It can access using `header["Content-Type"][0]`.                          |
 
 ### Path parameters
 

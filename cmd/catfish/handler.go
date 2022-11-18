@@ -189,6 +189,7 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 				"totalRequestCount": h.totalRequestCount,
 				"param":             param,
 				"query":             req.URL.Query(),
+				"header":            req.Header,
 			})
 			break
 		}
@@ -228,6 +229,7 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 	ctx := Context{
 		Method:     req.Method,
 		URL:        req.URL,
+		Header:     req.Header,
 		Param:      param,
 		Body:       body,
 		ParseError: parseError,
