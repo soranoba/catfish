@@ -3,6 +3,7 @@ package template
 import (
 	"bytes"
 	"io"
+	"strings"
 	"text/template"
 )
 
@@ -14,7 +15,12 @@ type (
 )
 
 var (
-	funcmap = template.FuncMap{}
+	funcmap = template.FuncMap{
+		"join":  strings.Join,
+		"split": strings.Split,
+		"add":   add,
+		"sub":   sub,
+	}
 )
 
 func MustCompile(text string) *Template {
@@ -87,4 +93,12 @@ func (t *Template) String() string {
 
 func compile(text string) (*template.Template, error) {
 	return template.New("").Funcs(funcmap).Parse(text)
+}
+
+func add(n1 int, n2 int) int {
+	return n1 + n2
+}
+
+func sub(n1 int, n2 int) int {
+	return n1 - n2
 }

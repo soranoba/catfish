@@ -35,6 +35,85 @@ func TestTemplate_Render_nil(t *testing.T) {
 	assert.NoError(err)
 }
 
+func TestTemplate_Render_join(t *testing.T) {
+	assert := assert.New(t)
+
+	tpl := MustCompile("{{join . \",\"}}")
+	val, err := tpl.Render([]string{"A", "B", "C"})
+	assert.NoError(err)
+	assert.Equal("A,B,C", val)
+}
+
+func TestTemplate_Render_split(t *testing.T) {
+	assert := assert.New(t)
+
+	tpl := MustCompile("{{split . \",\"}}")
+	val, err := tpl.Render("1,2,3,4,5")
+	assert.NoError(err)
+	assert.Equal("[1 2 3 4 5]", val)
+
+	tpl = MustCompile(`
+{{- $ids := split . "," -}}
+[
+{{- range $idx, $id := $ids}}
+  {
+    "id": {{$id}}
+  }{{if lt $idx (sub (len $ids) 1)}},{{end -}}
+{{end}}
+]`)
+	val, err = tpl.Render("1,2,3,4,5")
+	assert.NoError(err)
+	assert.Equal(`[
+  {
+    "id": 1
+  },
+  {
+    "id": 2
+  },
+  {
+    "id": 3
+  },
+  {
+    "id": 4
+  },
+  {
+    "id": 5
+  }
+]`, val)
+}
+
+func TestTemplate_Render_add(t *testing.T) {
+	assert := assert.New(t)
+
+	tpl := MustCompile("{{add . 3}}")
+	val, err := tpl.Render(2)
+	assert.NoError(err)
+	assert.Equal("5", val)
+
+	val, err = tpl.Render(2.5)
+	assert.Error(err)
+
+	tpl = MustCompile("{{add . 2.5}}")
+	val, err = tpl.Render(2)
+	assert.Error(err)
+}
+
+func TestTemplate_Render_sub(t *testing.T) {
+	assert := assert.New(t)
+
+	tpl := MustCompile("{{sub . 3}}")
+	val, err := tpl.Render(2)
+	assert.NoError(err)
+	assert.Equal("-1", val)
+
+	val, err = tpl.Render(2.5)
+	assert.Error(err)
+
+	tpl = MustCompile("{{sub . 2.5}}")
+	val, err = tpl.Render(2)
+	assert.Error(err)
+}
+
 func TestTemplate_UnmarshalText(t *testing.T) {
 	assert := assert.New(t)
 	tpl := Template{}
