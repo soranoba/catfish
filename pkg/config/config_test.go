@@ -5,6 +5,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -139,4 +140,26 @@ func TestLoadYamlFile_invalidBody(t *testing.T) {
 
 	_, err = LoadYamlFile(filepath.Join(dir, "testdata/invalid_body.yml"))
 	assert.EqualError(err, "(custom) .Routes[0].Response[0].Body template: :1: function \"ifif\" not defined")
+}
+
+func TestLoadYaml(t *testing.T) {
+	assert := assert.New(t)
+
+	conf, err := LoadYaml(strings.NewReader(`
+routes:
+  - method: GET
+    path: /users/:id
+    response:
+      - name: "200"
+        status: 200
+        header:
+          Content-Type: application/json
+        body: |
+          {
+            "id": 1,
+            "name": "Alice"
+          }
+`))
+	assert.NoError(err)
+	assert.Len(conf.Routes, 1)
 }

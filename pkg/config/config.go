@@ -5,6 +5,7 @@ import (
 	"github.com/soranoba/catfish/pkg/template"
 	"github.com/soranoba/catfish/pkg/validator"
 	"gopkg.in/yaml.v3"
+	"io"
 	"net/url"
 	"os"
 )
@@ -40,8 +41,12 @@ func LoadYamlFile(filepath string) (*Config, error) {
 	}
 	defer f.Close()
 
+	return LoadYaml(f)
+}
+
+func LoadYaml(reader io.Reader) (*Config, error) {
 	var conf Config
-	dec := yaml.NewDecoder(f)
+	dec := yaml.NewDecoder(reader)
 	if err := dec.Decode(&conf); err != nil {
 		return nil, err
 	}

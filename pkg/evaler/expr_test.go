@@ -1,11 +1,8 @@
 package evaler
 
 import (
-	"bytes"
 	"github.com/soranoba/valis"
 	"github.com/stretchr/testify/assert"
-	"net/http"
-	"net/url"
 	"testing"
 )
 
@@ -47,30 +44,6 @@ func TestExpr_Eval_variables(t *testing.T) {
 	val, err = MustCompile("x * 2").Eval(Params{"x": 1})
 	assert.NoError(err)
 	assert.Equal(2.0, val)
-}
-
-func TestExpr_Eval_queries(t *testing.T) {
-	assert := assert.New(t)
-
-	u, err := url.Parse("https://example.com?key=value&key=value2")
-	assert.NoError(err)
-
-	val, err := MustCompile("queries.key[0] == \"value\"").Eval(Params{"queries": u.Query()})
-	assert.NoError(err)
-	assert.Equal(1.0, val)
-}
-
-func TestExpr_Eval_header(t *testing.T) {
-	assert := assert.New(t)
-
-	req, err := http.NewRequest("GET", "https://example.com", bytes.NewBuffer([]byte("")))
-	assert.NoError(err)
-
-	req.Header.Set("Content-Type", "application/json")
-
-	val, err := MustCompile("header[\"Content-Type\"][0] == \"application/json\"").Eval(Params{"header": req.Header})
-	assert.NoError(err)
-	assert.Equal(1.0, val)
 }
 
 func TestExpr_Eval_atoi(t *testing.T) {

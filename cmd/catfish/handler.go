@@ -54,6 +54,12 @@ type (
 	}
 )
 
+const (
+	HeaderCatfishPath               = "X-CATFISH-PATH"
+	HeaderCatfishResponsePresetName = "X-CATFISH-RESPONSE-PRESET-NAME"
+	HeaderCatfishError              = "X-CATFISH-ERROR"
+)
+
 var (
 	defaultPreset *ResponsePreset
 	//go:embed static/public
@@ -201,8 +207,8 @@ func (h *HTTPHandler) handleRequest(w http.ResponseWriter, req *http.Request) {
 
 	h.mx.Unlock()
 
-	w.Header().Set("X-CATFISH-PATH", routePath)
-	w.Header().Set("X-CATFISH-RESPONSE-PRESET-NAME", preset.Name)
+	w.Header().Set(HeaderCatfishPath, routePath)
+	w.Header().Set(HeaderCatfishResponsePresetName, preset.Name)
 
 	if err != nil {
 		logrus.Errorf("Conditional expression failed: %v", err)
@@ -258,7 +264,7 @@ func (h *HTTPHandler) setCORSResponse(w http.ResponseWriter) {
 }
 
 func (h *HTTPHandler) failedWithError(w http.ResponseWriter, err error) {
-	w.Header().Set("X-CATFISH-ERROR", err.Error())
+	w.Header().Set(HeaderCatfishError, err.Error())
 	w.WriteHeader(http.StatusInternalServerError)
 }
 
